@@ -63,6 +63,9 @@
 
 #include <stdint.h>
 
+#define DEACTIVATE_SBC  //!< Deactivate SBC for testing purposes
+//#define DEACTIVATE_SBC_WATCHDOG  //!< Deactivate SBC watchdog for testing purposes - does not work as intended...
+
 /*========== Macros and Definitions =========================================*/
 
 /** Symbolic names to check re-entrance in #SBC_Trigger */
@@ -325,12 +328,20 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
                         /* Maximum number of retries -> goto error */
                         pInstance->retryCounter = 0u;
                         pInstance->timer        = SBC_STATEMACHINE_SHORTTIME;
-                        pInstance->state        = SBC_STATEMACHINE_ERROR;
-                        pInstance->substate     = SBC_ENTRY;
+#ifdef DEACTIVATE_SBC
+                        pInstance->state = SBC_STATEMACHINE_RUNNING;
+#else
+                        pInstance->state = SBC_STATEMACHINE_ERROR;
+#endif
+                        pInstance->substate = SBC_ENTRY;
                     }
                 } else {
-                    /* First part of init successful -> start periodic watchdog triggering */
-                    pInstance->watchdogState   = SBC_PERIODIC_WATCHDOG_ACTIVATED;
+/* First part of init successful -> start periodic watchdog triggering */
+#ifdef DEACTIVATE_SBC_WATCHDOG
+                    pInstance->watchdogState = SBC_PERIODIC_WATCHDOG_DEACTIVATED;
+#else
+                    pInstance->watchdogState = SBC_PERIODIC_WATCHDOG_ACTIVATED;
+#endif
                     pInstance->watchdogTrigger = pInstance->watchdogPeriod_10ms;
                     pInstance->timer           = SBC_STATEMACHINE_SHORTTIME;
                     pInstance->substate        = SBC_INIT_RESET_FAULT_ERROR_COUNTER_PART1;
@@ -348,8 +359,12 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
                         /* Maximum number of retries -> goto error */
                         pInstance->retryCounter = 0;
                         pInstance->timer        = SBC_STATEMACHINE_SHORTTIME;
-                        pInstance->state        = SBC_STATEMACHINE_ERROR;
-                        pInstance->substate     = SBC_ENTRY;
+#ifdef DEACTIVATE_SBC
+                        pInstance->state = SBC_STATEMACHINE_RUNNING;
+#else
+                        pInstance->state = SBC_STATEMACHINE_ERROR;
+#endif
+                        pInstance->substate = SBC_ENTRY;
                     }
                 } else {
                     /* Wait requiredWatchdogTrigger's */
@@ -364,8 +379,12 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
                     if (pInstance->retryCounter > 3u) {
                         /* Goto error state */
                         pInstance->retryCounter = 0;
-                        pInstance->state        = SBC_STATEMACHINE_ERROR;
-                        pInstance->substate     = SBC_ENTRY;
+#ifdef DEACTIVATE_SBC
+                        pInstance->state = SBC_STATEMACHINE_RUNNING;
+#else
+                        pInstance->state = SBC_STATEMACHINE_ERROR;
+#endif
+                        pInstance->substate = SBC_ENTRY;
                     }
                     pInstance->timer = SBC_STATEMACHINE_SHORTTIME;
                 } else {
@@ -378,8 +397,12 @@ extern void SBC_Trigger(SBC_STATE_s *pInstance) {
                     if (pInstance->retryCounter > 3u) {
                         /* Goto error state */
                         pInstance->retryCounter = 0;
-                        pInstance->state        = SBC_STATEMACHINE_ERROR;
-                        pInstance->substate     = SBC_ENTRY;
+#ifdef DEACTIVATE_SBC
+                        pInstance->state = SBC_STATEMACHINE_RUNNING;
+#else
+                        pInstance->state = SBC_STATEMACHINE_ERROR;
+#endif
+                        pInstance->substate = SBC_ENTRY;
                     }
                 } else {
                     pInstance->retryCounter = 0;
