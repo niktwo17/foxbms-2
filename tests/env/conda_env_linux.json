@@ -1704,10 +1704,10 @@
     "build_number": 0,
     "build_string": "pypi_0",
     "channel": "pypi",
-    "dist_name": "pysimplegui-4.55.1-pypi_0",
+    "dist_name": "pysimplegui-4.60.5-pypi_0",
     "name": "pysimplegui",
     "platform": "pypi",
-    "version": "4.55.1"
+    "version": "4.60.5"
   },
   {
     "base_url": "https://repo.anaconda.com/pkgs/main",
