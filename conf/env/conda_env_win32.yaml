@@ -131,7 +131,7 @@ dependencies:
       - pyparsing==2.4.7
       - pyrsistent==0.18.0
       - pyserial==3.5
-      - pysimplegui==4.55.1
+      - pysimplegui==4.60.5
       - python-can==4.0.0.dev2
       - python-datauri==0.2.9
       - python-dateutil==2.8.2
