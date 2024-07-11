@@ -264,6 +264,7 @@ typedef struct {
 } DATA_BLOCK_BALANCING_CONTROL_s;
 
 /** data structure declaration of DATA_BLOCK_USER_IO_CONTROL */
+//Trick: we still address these as 4 independent slaves...
 typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
