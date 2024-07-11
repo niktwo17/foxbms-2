@@ -82,8 +82,9 @@ extern STD_RETURN_TYPE_e AFE_Initialize(void) {
     return STD_OK;
 }
 
+//here we want to handle the different up to 4 strings
 extern STD_RETURN_TYPE_e AFE_RequestEepromRead(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     STD_RETURN_TYPE_e retval = STD_OK;
     LTC_REQUEST_s statereq   = {.request = LTC_STATE_EEPROM_READ_REQUEST, .string = string};
 
@@ -93,8 +94,9 @@ extern STD_RETURN_TYPE_e AFE_RequestEepromRead(uint8_t string) {
     return retval;
 }
 
+//here we want to handle the different up to 4 strings
 extern STD_RETURN_TYPE_e AFE_RequestEepromWrite(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     STD_RETURN_TYPE_e retval = STD_OK;
     LTC_REQUEST_s statereq   = {.request = LTC_STATE_EEPROM_WRITE_REQUEST, .string = string};
 
@@ -104,8 +106,9 @@ extern STD_RETURN_TYPE_e AFE_RequestEepromWrite(uint8_t string) {
     return retval;
 }
 
+//here we want to handle the different up to 4 strings
 extern STD_RETURN_TYPE_e AFE_RequestTemperatureRead(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     STD_RETURN_TYPE_e retval = STD_OK;
     LTC_REQUEST_s statereq   = {.request = LTC_STATE_TEMP_SENS_READ_REQUEST, .string = string};
 
@@ -115,8 +118,9 @@ extern STD_RETURN_TYPE_e AFE_RequestTemperatureRead(uint8_t string) {
     return retval;
 }
 
+//here we want to handle the different up to 4 strings
 extern STD_RETURN_TYPE_e AFE_RequestBalancingFeedbackRead(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
     LTC_REQUEST_s statereq   = {.request = LTC_STATE_BALANCEFEEDBACK_REQUEST, .string = string};
 
@@ -126,9 +130,9 @@ extern STD_RETURN_TYPE_e AFE_RequestBalancingFeedbackRead(uint8_t string) {
 
     return retval;
 }
-
+//here we will call 2 series strings at the same time
 extern STD_RETURN_TYPE_e AFE_RequestOpenWireCheck(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     STD_RETURN_TYPE_e retval = STD_OK;
     LTC_REQUEST_s statereq   = {.request = LTC_STATE_OPENWIRE_CHECK_REQUEST, .string = string};
 
@@ -152,8 +156,9 @@ extern bool AFE_IsFirstMeasurementCycleFinished(void) {
     return LTC_IsFirstMeasurementCycleFinished(&ltc_stateBase);
 }
 
+//here we want to handle the different up to 4 strings
 extern STD_RETURN_TYPE_e AFE_RequestIoRead(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
 
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
 
@@ -161,7 +166,7 @@ extern STD_RETURN_TYPE_e AFE_RequestIoRead(uint8_t string) {
 }
 
 STD_RETURN_TYPE_e AFE_RequestIoWrite(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
 
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
 

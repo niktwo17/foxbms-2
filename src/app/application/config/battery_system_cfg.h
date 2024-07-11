@@ -96,8 +96,8 @@ typedef enum {
  *          repetition macro is adapted.
  * @ptype   uint
  */
-#define BS_NR_OF_STRINGS        (1u)
-#define BS_NR_OF_SERIES_STRINGS (1u)
+#define BS_NR_OF_STRINGS        (2u)
+#define BS_NR_OF_SERIES_STRINGS (2u)
 #define BS_NR_OF_TOTAL_STRINGS  (BS_NR_OF_STRINGS * BS_NR_OF_SERIES_STRINGS)
 
 /* safety check: due to implementation BS_NR_OF_STRINGS may not be larger than GEN_REPEAT_MAXIMUM_REPETITIONS */
@@ -111,7 +111,8 @@ typedef enum {
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_MODULES_PER_STRING (1u)
+#define BS_NR_OF_MODULES_PER_STRING        (6u)
+#define BS_NR_OF_SERIES_MODULES_PER_STRING (BS_NR_OF_SERIES_STRINGS * BS_NR_OF_MODULES_PER_STRING)
 
 /**
  * @brief   number of cells per module
@@ -121,7 +122,7 @@ typedef enum {
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (18u)
+#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (12u)
 
 /**
  * @brief   number of parallel connected battery cells in a cell block
@@ -157,11 +158,13 @@ typedef enum {
 #endif
 
 /** number of battery cells in the system */
-#define BS_NR_OF_CELL_BLOCKS_PER_STRING (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_CELL_BLOCKS_PER_MODULE)
+#define BS_NR_OF_CELL_BLOCKS_PER_STRING \
+    (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_CELL_BLOCKS_PER_MODULE * BS_NR_OF_SERIES_STRINGS)
 /** number of temperature sensors in a string */
-#define BS_NR_OF_TEMP_SENSORS_PER_STRING (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_TEMP_SENSORS_PER_MODULE)
+#define BS_NR_OF_TEMP_SENSORS_PER_STRING \
+    (BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_TEMP_SENSORS_PER_MODULE * BS_NR_OF_SERIES_STRINGS)
 /** number of temperature sensors in the battery system */
-#define BS_NR_OF_TEMP_SENSORS (BS_NR_OF_TEMP_SENSORS_PER_STRING * BS_NR_OF_STRINGS)
+#define BS_NR_OF_TEMP_SENSORS (BS_NR_OF_TEMP_SENSORS_PER_STRING * BS_NR_OF_STRINGS * BS_NR_OF_SERIES_STRINGS)
 
 /**
  * @details - If set to false, foxBMS does not check for the presence of a

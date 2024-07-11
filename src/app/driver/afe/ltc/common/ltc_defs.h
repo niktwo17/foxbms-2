@@ -68,12 +68,13 @@
 /*========== Macros and Definitions =========================================*/
 
 /** error table for the LTC driver */
+//adjusted to handle the series string architecture very inconsistent handling unfortunately...
 typedef struct {
-    uint8_t PEC_valid[BS_NR_OF_STRINGS][LTC_N_LTC]; /*!<    */
-    uint8_t mux0[BS_NR_OF_STRINGS][LTC_N_LTC];      /*!<    */
-    uint8_t mux1[BS_NR_OF_STRINGS][LTC_N_LTC];      /*!<    */
-    uint8_t mux2[BS_NR_OF_STRINGS][LTC_N_LTC];      /*!<    */
-    uint8_t mux3[BS_NR_OF_STRINGS][LTC_N_LTC];      /*!<    */
+    uint8_t PEC_valid[BS_NR_OF_STRINGS][LTC_N_LTC * BS_NR_OF_SERIES_STRINGS]; /*!<    */
+    uint8_t mux0[BS_NR_OF_STRINGS][LTC_N_LTC * BS_NR_OF_SERIES_STRINGS];      /*!<    */
+    uint8_t mux1[BS_NR_OF_STRINGS][LTC_N_LTC * BS_NR_OF_SERIES_STRINGS];      /*!<    */
+    uint8_t mux2[BS_NR_OF_STRINGS][LTC_N_LTC * BS_NR_OF_SERIES_STRINGS];      /*!<    */
+    uint8_t mux3[BS_NR_OF_STRINGS][LTC_N_LTC * BS_NR_OF_SERIES_STRINGS];      /*!<    */
 } LTC_ERRORTABLE_s;
 
 /** struct for storing information on the openWire detection */
@@ -581,11 +582,11 @@ typedef struct {
     DIAG_ID_e tempMeasDiagErrorEntry;       /*!< diagnosis entry for temperature measurement related events */
     LTC_DATAPTR_s ltcData;                  /*!< contains pointers to the local data buffer */
     LTC_MUX_CH_CFG_s *muxmeas_seqptr
-        [BS_NR_OF_STRINGS]; /*!< pointer to the multiplexer sequence to be measured (contains a list of elements [multiplexer id, multiplexer channels]) (1,-1)...(3,-1),(0,1),...(0,7) */
+        [BS_NR_OF_TOTAL_STRINGS]; /*!< pointer to the multiplexer sequence to be measured (contains a list of elements [multiplexer id, multiplexer channels]) (1,-1)...(3,-1),(0,1),...(0,7) */
     LTC_MUX_CH_CFG_s *muxmeas_seqendptr
-        [BS_NR_OF_STRINGS]; /*!< point to the end of the multiplexer sequence; pointer to ending point of sequence */
+        [BS_NR_OF_TOTAL_STRINGS]; /*!< point to the end of the multiplexer sequence; pointer to ending point of sequence */
     uint8_t muxmeas_nr_end
-        [BS_NR_OF_STRINGS]; /*!< number of multiplexer channels that have to be measured; end number of sequence, where measurement is finished*/
+        [BS_NR_OF_TOTAL_STRINGS]; /*!< number of multiplexer channels that have to be measured; end number of sequence, where measurement is finished*/
     uint8_t configuration[6]; /*!< holds the configuration of the ltc (configuration register) */
 } LTC_STATE_s;
 

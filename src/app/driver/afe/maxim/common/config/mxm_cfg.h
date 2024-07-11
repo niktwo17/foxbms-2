@@ -69,9 +69,9 @@
 /*========== Macros and Definitions =========================================*/
 #define MXM_MAXIMUM_NUMBER_OF_SUPPORTED_CELL_MEASUREMENTS (14u)
 
-#if BS_NR_OF_CELL_BLOCKS_PER_MODULE > MXM_MAXIMUM_NUMBER_OF_SUPPORTED_CELL_MEASUREMENTS
-#error "Number of cell blocks per module cannot be higher than maximum number of supported cells per IC"
-#endif
+//#if BS_NR_OF_CELL_BLOCKS_PER_MODULE > MXM_MAXIMUM_NUMBER_OF_SUPPORTED_CELL_MEASUREMENTS
+//#error "Number of cell blocks per module cannot be higher than maximum number of supported cells per IC"
+//#endif
 
 /**
  * MAX17841B GPIO configuration

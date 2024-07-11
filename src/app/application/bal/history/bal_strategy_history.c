@@ -282,7 +282,7 @@ static void BAL_ComputeImbalances(void) {
         voltageMin_mV                  = INT16_MAX;
         minVoltageModuleIndex          = 0u;
         minVoltageModuleCellBlockIndex = 0u;
-        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_SERIES_MODULES_PER_STRING; m++) {
             for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 if (bal_cellVoltage.cellVoltage_mV[s][m][cb] <= voltageMin_mV) {
                     voltageMin_mV                  = bal_cellVoltage.cellVoltage_mV[s][m][cb];
@@ -303,7 +303,7 @@ static void BAL_ComputeImbalances(void) {
         /* update balancing threshold */
         bal_state.balancingThreshold = BAL_GetBalancingThreshold_mV() + BAL_HYSTERESIS_mV;
 
-        for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
+        for (uint8_t m = 0u; m < BS_NR_OF_SERIES_MODULES_PER_STRING; m++) {
             for (uint16_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
                 if ((m != minVoltageModuleIndex) || (cb != minVoltageModuleCellBlockIndex)) {
                     if (bal_cellVoltage.cellVoltage_mV[s][m][cb] >= (voltageMin_mV + bal_state.balancingThreshold)) {

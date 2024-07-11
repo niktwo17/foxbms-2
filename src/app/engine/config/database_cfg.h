@@ -135,14 +135,15 @@ typedef struct {
     DATA_BLOCK_HEADER_s header;                 /*!< Data block header */
     uint8_t state;                              /*!< for future use */
     int32_t stringVoltage_mV[BS_NR_OF_STRINGS]; /*!< uint: mV */
-    int16_t cellVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
+    int16_t cellVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_SERIES_MODULES_PER_STRING]
                           [BS_NR_OF_CELL_BLOCKS_PER_MODULE]; /*!< unit: mV */
-    uint64_t
-        invalidCellVoltage[BS_NR_OF_STRINGS]
-                          [BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
-    uint16_t nrValidCellVoltages[BS_NR_OF_STRINGS];      /*!< number of valid voltages */
-    uint32_t moduleVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< unit: mV */
-    bool validModuleVoltage[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING];   /*!< 0 -> if PEC okay; 1 -> PEC error */
+    uint64_t invalidCellVoltage
+        [BS_NR_OF_STRINGS]
+        [BS_NR_OF_SERIES_MODULES_PER_STRING];       /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
+    uint16_t nrValidCellVoltages[BS_NR_OF_STRINGS]; /*!< number of valid voltages */
+    uint32_t moduleVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< unit: mV */
+    bool validModuleVoltage[BS_NR_OF_STRINGS]
+                           [BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< 0 -> if PEC okay; 1 -> PEC error */
 } DATA_BLOCK_CELL_VOLTAGE_s;
 
 /** data block struct of cell temperatures */
@@ -152,11 +153,12 @@ typedef struct {
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header; /*!< Data block header */
     uint8_t state;              /*!< for future use */
-    int16_t cellTemperature_ddegC[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]
+    int16_t cellTemperature_ddegC[BS_NR_OF_STRINGS][BS_NR_OF_SERIES_MODULES_PER_STRING]
                                  [BS_NR_OF_TEMP_SENSORS_PER_MODULE]; /*!< unit: deci &deg;C */
     uint16_t invalidCellTemperature
-        [BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if temperatures are valid. 0->valid, 1->invalid */
-    uint16_t nrValidTemperatures[BS_NR_OF_STRINGS];      /*!< number of valid temperatures in each string */
+        [BS_NR_OF_STRINGS]
+        [BS_NR_OF_SERIES_MODULES_PER_STRING];       /*!< bitmask if temperatures are valid. 0->valid, 1->invalid */
+    uint16_t nrValidTemperatures[BS_NR_OF_STRINGS]; /*!< number of valid temperatures in each string */
 } DATA_BLOCK_CELL_TEMPERATURE_s;
 
 /** data block struct of minimum and maximum values */
@@ -264,6 +266,7 @@ typedef struct {
 } DATA_BLOCK_BALANCING_CONTROL_s;
 
 /** data structure declaration of DATA_BLOCK_USER_IO_CONTROL */
+//Trick: we still address these as 4 independent slaves...
 typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
@@ -287,9 +290,9 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                    /*!< Data block header */
-    uint8_t state;                                                 /*!< for future use */
-    uint16_t value[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING]; /*!< unit: mV (optocoupler output) */
+    DATA_BLOCK_HEADER_s header;                                           /*!< Data block header */
+    uint8_t state;                                                        /*!< for future use */
+    uint16_t value[BS_NR_OF_STRINGS][BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< unit: mV (optocoupler output) */
 } DATA_BLOCK_BALANCING_FEEDBACK_s;
 
 /** data block struct of user multiplexer values */
@@ -297,9 +300,9 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                                              /*!< Data block header */
-    uint8_t state;                                                           /*!< for future use */
-    uint16_t value[BS_NR_OF_STRINGS][8u * 2u * BS_NR_OF_MODULES_PER_STRING]; /*!< unit: mV (mux voltage input) */
+    DATA_BLOCK_HEADER_s header;                                                     /*!< Data block header */
+    uint8_t state;                                                                  /*!< for future use */
+    uint16_t value[BS_NR_OF_STRINGS][8u * 2u * BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< unit: mV (mux voltage input) */
 } DATA_BLOCK_USER_MUX_s;
 
 /** data block struct of cell open wire */
@@ -311,7 +314,7 @@ typedef struct {
     uint8_t state;                          /*!< for future use */
     uint16_t nrOpenWires[BS_NR_OF_STRINGS]; /*!< number of open wires */
     uint8_t openWire[BS_NR_OF_STRINGS]
-                    [BS_NR_OF_MODULES_PER_STRING *
+                    [BS_NR_OF_SERIES_STRINGS * BS_NR_OF_SERIES_MODULES_PER_STRING *
                      (BS_NR_OF_CELL_BLOCKS_PER_MODULE + 1u)]; /*!< 1 -> open wire, 0 -> everything ok */
 } DATA_BLOCK_OPEN_WIRE_s;
 
@@ -322,11 +325,13 @@ typedef struct {
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
     DATA_BLOCK_HEADER_s header; /*!< Data block header */
     uint8_t state;              /*!< for future use */
-    int16_t gpioVoltages_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE]; /*!< unit: mV */
-    int16_t gpaVoltages_mV[BS_NR_OF_STRINGS][BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_GPAS_PER_MODULE];   /*!< unit: mV */
-    uint16_t
-        invalidGpioVoltages[BS_NR_OF_STRINGS]
-                           [BS_NR_OF_MODULES_PER_STRING]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
+    int16_t gpioVoltages_mV[BS_NR_OF_STRINGS]
+                           [BS_NR_OF_SERIES_MODULES_PER_STRING * BS_NR_OF_GPIOS_PER_MODULE]; /*!< unit: mV */
+    int16_t gpaVoltages_mV[BS_NR_OF_STRINGS]
+                          [BS_NR_OF_SERIES_MODULES_PER_STRING * BS_NR_OF_GPAS_PER_MODULE]; /*!< unit: mV */
+    uint16_t invalidGpioVoltages
+        [BS_NR_OF_STRINGS]
+        [BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
 } DATA_BLOCK_ALL_GPIO_VOLTAGES_s;
 
 /** data block struct of error flags */
