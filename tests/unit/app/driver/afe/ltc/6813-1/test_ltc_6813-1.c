@@ -102,7 +102,7 @@ static spiDAT1_t spi_kLtcDataConfig = {
 };
 
 /* SPI interface configuration for LTC communication */
-SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
+SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_TOTAL_STRINGS] = {
     {
         .pConfig  = &spi_kLtcDataConfig,
         .pNode    = spiREG1,

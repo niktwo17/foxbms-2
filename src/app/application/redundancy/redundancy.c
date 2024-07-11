@@ -1081,7 +1081,6 @@ extern STD_RETURN_TYPE_e MRC_Initialize(void) {
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             /* Invalidate cell voltage values */
             mrc_tableCellVoltages.invalidCellVoltage[s][m] = 0xFFFFFFFFFFFFFFFFuLL;
-            mrc_tableCellVoltages.validModuleVoltage[s][m] = false;
             /* Invalidate cell temperature values */
             mrc_tableCellTemperatures.invalidCellTemperature[s][m] = 0xFFFF;
         }

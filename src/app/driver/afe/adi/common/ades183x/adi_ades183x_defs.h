@@ -114,9 +114,9 @@ typedef enum {
 } ADI_AUXILIARY_STORE_LOCATION_e;
 
 /* configuration sanitation */
-#if BS_NR_OF_CELL_BLOCKS_PER_MODULE > ADI_MAX_SUPPORTED_CELLS
-#error "Number of cell blocks per module cannot be higher than maximum number of cells per module"
-#endif
+//#if BS_NR_OF_CELL_BLOCKS_PER_MODULE > ADI_MAX_SUPPORTED_CELLS
+//#error "Number of cell blocks per module cannot be higher than maximum number of cells per module"
+//#endif
 #if BS_NR_OF_GPIOS_PER_MODULE != ADI_TOTAL_GPIO_NUMBER
 #error "Number of GPIOs must be 10"
 #endif

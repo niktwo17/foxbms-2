@@ -157,7 +157,7 @@ typedef struct {
 
 /*========== Extern Constant and Variable Declarations ======================*/
 extern SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS];
-extern SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS];
+extern SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_TOTAL_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_mxmInterface;
 extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_STRINGS];
 extern SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceRx[BS_NR_OF_STRINGS];
