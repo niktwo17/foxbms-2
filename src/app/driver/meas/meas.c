@@ -81,32 +81,32 @@ void MEAS_Control(void) {
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestIoWrite(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     return AFE_RequestIoWrite(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestIoRead(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     return AFE_RequestIoRead(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestTemperatureRead(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     return AFE_RequestTemperatureRead(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestBalancingFeedbackRead(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     return AFE_RequestBalancingFeedbackRead(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestEepromRead(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     return AFE_RequestEepromRead(string);
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestEepromWrite(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     return AFE_RequestEepromWrite(string);
 }
 
@@ -123,7 +123,7 @@ extern STD_RETURN_TYPE_e MEAS_Initialize(void) {
 }
 
 extern STD_RETURN_TYPE_e MEAS_RequestOpenWireCheck(uint8_t string) {
-    FAS_ASSERT(string < BS_NR_OF_STRINGS);
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     return AFE_RequestOpenWireCheck(string);
 }
 
