@@ -129,21 +129,21 @@ static bool BAL_ActivateBalancing(void) {
     DATA_READ_DATA(&cellVoltage, &minMax);
 
     for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
-        int16_t min              = minMax.minimumCellVoltage_mV[s];
+        //int16_t min              = minMax.minimumCellVoltage_mV[s];
         uint16_t nrBalancedCells = 0u;
         for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING; m++) {
             for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
-                if (cellVoltage.cellVoltage_mV[s][m][cb] > (min + bal_state.balancingThreshold)) {
-                    bal_balancing.balancingState[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cb] = 1u;
-                    finished                                                                    = false;
-                    /* set without hysteresis so that we now balance all cells that are below the initial threshold */
-                    bal_state.balancingThreshold  = BAL_GetBalancingThreshold_mV();
-                    bal_state.active              = true;
-                    bal_balancing.enableBalancing = 1;
-                    nrBalancedCells++;
-                } else {
-                    bal_balancing.balancingState[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cb] = 0;
-                }
+                //if (cellVoltage.cellVoltage_mV[s][m][cb] > (min + bal_state.balancingThreshold)) {
+                bal_balancing.balancingState[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cb] = 1u;
+                finished                                                                    = false;
+                /* set without hysteresis so that we now balance all cells that are below the initial threshold */
+                bal_state.balancingThreshold  = BAL_GetBalancingThreshold_mV();
+                bal_state.active              = true;
+                bal_balancing.enableBalancing = 1;
+                nrBalancedCells++;
+                //} else {
+                //    bal_balancing.balancingState[s][(m * BS_NR_OF_CELL_BLOCKS_PER_MODULE) + cb] = 0;
+                //}
             }
         }
         bal_balancing.nrBalancedCells[s] = nrBalancedCells;
