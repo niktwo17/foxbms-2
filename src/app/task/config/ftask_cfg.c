@@ -248,8 +248,8 @@ extern void FTSK_RunUserCodeCyclic10ms(void) {
     SBC_Trigger(&sbc_stateMcuSupervisor);
 
     if (ftsk_cyclic10msCounter == TASK_10MS_COUNTER_FOR_50MS) {
-        MRC_ValidateAfeMeasurement();
-        MRC_ValidatePackMeasurement();
+        MRC_ValidateAfeMeasurement();   // we just ignore this
+        MRC_ValidatePackMeasurement();  // we just ignore this
         ftsk_cyclic10msCounter = 0;
     }
     /* Call BMS_Trigger function at the end of the 10ms task to allow previously

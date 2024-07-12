@@ -691,15 +691,35 @@ extern void LTC_SaveAllGpioMeasurement(LTC_STATE_s *ltc_state) {
  *
  */
 static void LTC_SaveBalancingFeedback(LTC_STATE_s *ltc_state, uint16_t *DataBufferSPI_RX, uint8_t stringNumber) {
-    for (uint16_t i = 0; i < LTC_N_LTC; i++) {
+    uint8_t stringSeries = 0;
+    if (1 == stringNumber) {
+        stringSeries = 1;
+        stringNumber = 0;
+    } else if (2 == stringNumber) {
+        stringSeries = 0;
+        stringNumber = 1;
+    } else if (3 == stringNumber) {
+        stringSeries = 1;
+        stringNumber = 1;
+    }
+    /*
+    for (uint16_t i = 0u + LTC_N_LTC * stringSeries; i < LTC_N_LTC * (1u + stringSeries); i++) {
         const uint16_t val_i = DataBufferSPI_RX[8u + (1u * i * 8u)] |
-                               (DataBufferSPI_RX[8u + (1u * i * 8u) + 1u] << 8u); /* raw value, GPIO3 */
+                               (DataBufferSPI_RX[8u + (1u * i * 8u) + 1u] << 8u); // raw value, GPIO3
 
         ltc_state->ltcData.balancingFeedback->value[stringNumber][i] = val_i;
     }
+        */
 
-    ltc_state->ltcData.balancingFeedback->state++;
-    DATA_WRITE_DATA(ltc_state->ltcData.balancingFeedback);
+    for (uint16_t i = 0u + LTC_N_LTC * stringSeries; i < LTC_N_LTC * (1u + stringSeries); i++) {
+        if (ltc_state->ltcData.balancingControl->balancingState[stringNumber][i * BS_NR_OF_CELL_BLOCKS_PER_MODULE] ==
+            1) {  //if balancing is active as per control, then we fake the feedback here, if it is used at all later...
+            ltc_state->ltcData.balancingFeedback->value[stringNumber][i] = 2500;
+        }
+
+        ltc_state->ltcData.balancingFeedback->state++;
+        DATA_WRITE_DATA(ltc_state->ltcData.balancingFeedback);
+    }
 }
 
 /**
