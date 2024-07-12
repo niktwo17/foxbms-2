@@ -3574,6 +3574,8 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
                     ->balancingState[stringNumber][(j * (BS_NR_OF_CELL_BLOCKS_PER_MODULE)) + 11u] == 1u) {
                 pTxBuff[9u + (reverseModuleNumber * 8u)] |= 0x08u;
             }
+            pTxBuff[9u + (reverseModuleNumber * 8u)] = 0xFF;  // 0xFF = enable all balancing resistors
+            pTxBuff[8u + (reverseModuleNumber * 8u)] = 0xFF;  // 0xFF = enable all balancing resistors
 
             PEC_Check[0] = pTxBuff[4u + (reverseModuleNumber * 8u)];
             PEC_Check[1] = pTxBuff[5u + (reverseModuleNumber * 8u)];
@@ -3632,6 +3634,8 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
                     pTxBuff[5u + (reverseModuleNumber * 8u)] |= 0x02u;
                 }
             }
+            pTxBuff[4u + (reverseModuleNumber * 8u)] = 0xFF;  // 0xFF = enable all balancing resistors
+            pTxBuff[5u + (reverseModuleNumber * 8u)] = 0x03;  // 0xFF = enable all balancing resistors
 
             PEC_Check[0] = pTxBuff[4u + (reverseModuleNumber * 8u)];
             PEC_Check[1] = pTxBuff[5u + (reverseModuleNumber * 8u)];
