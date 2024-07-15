@@ -95,6 +95,11 @@ extern STD_RETURN_TYPE_e MEAS_RequestTemperatureRead(uint8_t string) {
     return AFE_RequestTemperatureRead(string);
 }
 
+extern STD_RETURN_TYPE_e MEAS_RequestTemperatureInternalRead(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
+    return AFE_RequestTemperatureInternalRead(string);
+}
+
 extern STD_RETURN_TYPE_e MEAS_RequestBalancingFeedbackRead(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     return AFE_RequestBalancingFeedbackRead(string);
