@@ -193,19 +193,22 @@ static uint16_t ltc_cmdWRCFG[4]  = {0x00, 0x01, 0x3D, 0x6E};
 static uint16_t ltc_cmdWRCFG2[4] = {0x00, 0x24, 0xB1, 0x9E};
 static uint16_t ltc_cmdRDCFG[4]  = {0x00, 0x02, 0x2B, 0x0A};
 
-static uint16_t ltc_cmdRDCVA[4]  = {0x00, 0x04, 0x07, 0xC2};
-static uint16_t ltc_cmdRDCVB[4]  = {0x00, 0x06, 0x9A, 0x94};
-static uint16_t ltc_cmdRDCVC[4]  = {0x00, 0x08, 0x5E, 0x52};
-static uint16_t ltc_cmdRDCVD[4]  = {0x00, 0x0A, 0xC3, 0x04};
-static uint16_t ltc_cmdRDCVE[4]  = {0x00, 0x09, 0xD5, 0x60};
-static uint16_t ltc_cmdRDCVF[4]  = {0x00, 0x0B, 0x48, 0x36};
-static uint16_t ltc_cmdWRCOMM[4] = {0x07, 0x21, 0x24, 0xB2};
-static uint16_t ltc_cmdSTCOMM[4] = {0x07, 0x23, 0xB9, 0xE4};
-static uint16_t ltc_cmdRDCOMM[4] = {0x07, 0x22, 0x32, 0xD6};
-static uint16_t ltc_cmdRDAUXA[4] = {0x00, 0x0C, 0xEF, 0xCC};
-static uint16_t ltc_cmdRDAUXB[4] = {0x00, 0x0E, 0x72, 0x9A};
-static uint16_t ltc_cmdRDAUXC[4] = {0x00, 0x0D, 0x64, 0xFE};
-static uint16_t ltc_cmdRDAUXD[4] = {0x00, 0x0F, 0xF9, 0xA8};
+static uint16_t ltc_cmdRDCVA[4]   = {0x00, 0x04, 0x07, 0xC2};
+static uint16_t ltc_cmdRDCVB[4]   = {0x00, 0x06, 0x9A, 0x94};
+static uint16_t ltc_cmdRDCVC[4]   = {0x00, 0x08, 0x5E, 0x52};
+static uint16_t ltc_cmdRDCVD[4]   = {0x00, 0x0A, 0xC3, 0x04};
+static uint16_t ltc_cmdRDCVE[4]   = {0x00, 0x09, 0xD5, 0x60};
+static uint16_t ltc_cmdRDCVF[4]   = {0x00, 0x0B, 0x48, 0x36};
+static uint16_t ltc_cmdWRCOMM[4]  = {0x07, 0x21, 0x24, 0xB2};
+static uint16_t ltc_cmdSTCOMM[4]  = {0x07, 0x23, 0xB9, 0xE4};
+static uint16_t ltc_cmdRDCOMM[4]  = {0x07, 0x22, 0x32, 0xD6};
+static uint16_t ltc_cmdRDAUXA[4]  = {0x00, 0x0C, 0xEF, 0xCC};
+static uint16_t ltc_cmdRDAUXB[4]  = {0x00, 0x0E, 0x72, 0x9A};
+static uint16_t ltc_cmdRDAUXC[4]  = {0x00, 0x0D, 0x64, 0xFE};
+static uint16_t ltc_cmdRDAUXD[4]  = {0x00, 0x0F, 0xF9, 0xA8};
+static uint16_t ltc_cmdRDSTATA[4] = {0x00, 0x20, 0x00, 0x00};  //FOO? can that be real?
+
+//0000 0000 0010 0000
 
 /* static uint16_t ltc_cmdMUTE[4] = {0x00, 0x28, 0xE8, 0x0E};                    !< MUTE discharging via S pins */
 /* static uint16_t ltc_cmdUNMUTE[4] = {0x00, 0x29, 0x63, 0x3C};                  !< UN-MUTE discharging via S pins */
@@ -263,6 +266,11 @@ static uint16_t ltc_cmdADAX_filtered_ALLGPIOS[4] =
     {0x05, 0xE0, 0x97, 0x86};                                            /*!< All channels, filtered mode           */
 static uint16_t ltc_cmdADAX_fast_ALLGPIOS[4] = {0x04, 0xE0, 0x1F, 0xCA}; /*!< All channels, fast mode               */
 
+// read internal DIE temperature
+static uint16_t ltc_cmdADSTAT_normal[4] = {0x05, 0x6A, 0xA6, 0xF8}; /*!< Single channel, ITMP, normal mode   */
+// 1010 1101   0100 data
+// makes 00001010 11010100 total package, 0x05, 0x6A
+
 /* Open-wire */
 static uint16_t ltc_BC_cmdADOW_PUP_normal_DCP0[4] = {
     0x03,
@@ -318,6 +326,8 @@ static STD_RETURN_TYPE_e LTC_Init(
     uint16_t *pTxBuff,
     uint16_t *pRxBuff,
     uint32_t frameLength);
+
+static STD_RETURN_TYPE_e LTC_StartITMPMeasurement(SPI_INTERFACE_CONFIG_s *pSpiInterface);
 
 static STD_RETURN_TYPE_e LTC_StartVoltageMeasurement(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
@@ -1075,6 +1085,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
             /****************************READ VOLTAGE************************************/
             case LTC_STATEMACH_READVOLTAGE:
 
+                LTC_ReadRegister(
+                    ltc_cmdRDCVA,
+                    ltc_state->spiSeqPtr,
+                    ltc_state->ltcData.txBuffer,
+                    ltc_state->ltcData.rxBuffer,
+                    ltc_state->ltcData.frameLength);
+
                 if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_A_RDCVA_READVOLTAGE) {
                     ltc_state->check_spi_flag = STD_OK;
                     AFE_SetTransmitOngoing(ltc_state);
@@ -1555,6 +1572,13 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_StateTransition(
                             ltc_state, LTC_STATEMACH_TEMP_SENS_READ, LTC_TEMP_SENS_SEND_DATA1, LTC_STATEMACH_SHORTTIME);
                         ltc_state->balance_control_done = STD_NOT_OK;
+                    } else if (statereq.request == LTC_STATE_TEMP_SENS_INT_READ_REQUEST) {
+                        LTC_StateTransition(
+                            ltc_state,
+                            LTC_STATEMACH_TEMP_SENS_INT_READ,
+                            LTC_TRIGGER_ITMP_CONVERSION,
+                            LTC_STATEMACH_SHORTTIME);
+                        ltc_state->balance_control_done = STD_NOT_OK;
                     } else if (statereq.request == LTC_STATEMACH_BALANCEFEEDBACK_REQUEST) {
                         LTC_StateTransition(
                             ltc_state, LTC_STATEMACH_BALANCEFEEDBACK, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
@@ -1868,6 +1892,69 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                         LTC_SAVE_FEEDBACK_BALANCECONTROL,
                         LTC_STATEMACH_SHORTTIME);
                 } else if (ltc_state->substate == LTC_SAVE_FEEDBACK_BALANCECONTROL) {
+                    bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
+                    if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
+                        DIAG_Handler(
+                            ltc_state->spiDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
+                        LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
+                        break;
+                    } else {
+                        DIAG_Handler(
+                            ltc_state->spiDiagErrorEntry, DIAG_EVENT_OK, DIAG_STRING, ltc_state->currentString);
+                    }
+
+                    if (LTC_CheckPec(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString) != STD_OK) {
+                        DIAG_Handler(
+                            ltc_state->pecDiagErrorEntry, DIAG_EVENT_NOT_OK, DIAG_STRING, ltc_state->currentString);
+                    } else {
+                        DIAG_Handler(
+                            ltc_state->pecDiagErrorEntry, DIAG_EVENT_OK, DIAG_STRING, ltc_state->currentString);
+                        LTC_SaveBalancingFeedback(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
+                    }
+                    LTC_StateTransition(ltc_state, LTC_STATEMACH_STARTMEAS, LTC_ENTRY, LTC_STATEMACH_SHORTTIME);
+                    break;
+                }
+                break;
+
+            /****************************INTERNAL TEMPERATURE SENSOR*********************************/
+            case LTC_STATEMACH_TEMP_SENS_INT_READ:
+
+                if (ltc_state->substate == LTC_TRIGGER_ITMP_CONVERSION) {
+                    ltc_state->spiSeqPtr = ltc_state->ltcData.pSpiInterface + ltc_state->requestedString;
+
+                    ltc_state->check_spi_flag = STD_NOT_OK;
+                    retVal                    = LTC_StartITMPMeasurement(ltc_state->spiSeqPtr);
+                    LTC_CondBasedStateTransition(
+                        ltc_state,
+                        retVal,
+                        ltc_state->spiDiagErrorEntry,
+                        LTC_STATEMACH_TEMP_SENS_INT_READ,
+                        LTC_READ_ITMP,
+                        LTC_STATEMACH_SHORTTIME,
+                        LTC_STATEMACH_TEMP_SENS_INT_READ,
+                        LTC_READ_ITMP,
+                        LTC_STATEMACH_SHORTTIME);  //FOO: we just wait 1ms always before transition lol
+                    break;
+                } else if (ltc_state->substate == LTC_READ_ITMP) {
+                    ltc_state->check_spi_flag = STD_OK;
+                    AFE_SetTransmitOngoing(ltc_state);
+                    retVal = LTC_ReadRegister(
+                        ltc_cmdRDSTATA,
+                        ltc_state->spiSeqPtr,
+                        ltc_state->ltcData.txBuffer,
+                        ltc_state->ltcData.rxBuffer,
+                        ltc_state->ltcData.frameLength); /* read STATA register */
+                    LTC_CondBasedStateTransition(
+                        ltc_state,
+                        retVal,
+                        ltc_state->spiDiagErrorEntry,
+                        LTC_STATEMACH_TEMP_SENS_INT_READ,
+                        LTC_SAVE_FEEDBACK_BALANCECONTROL,
+                        ltc_state->commandDataTransferTime + LTC_TRANSMISSION_TIMEOUT,
+                        LTC_STATEMACH_TEMP_SENS_INT_READ,
+                        LTC_SAVE_FEEDBACK_BALANCECONTROL,
+                        LTC_STATEMACH_SHORTTIME);
+                } else if (ltc_state->substate == LTC_EXIT_ITMP) {
                     bool transmitOngoing = AFE_IsTransmitOngoing(ltc_state);
                     if ((ltc_state->timer == 0) && (transmitOngoing == true)) {
                         DIAG_Handler(
@@ -3852,6 +3939,24 @@ static STD_RETURN_TYPE_e LTC_StartVoltageMeasurement(
         retVal = STD_NOT_OK;
     }
     return retVal;
+}
+
+/**
+ * @brief   tells the LTC daisy-chain to start measuring the ITMP value.
+ *
+ * This function sends an instruction to the daisy-chain via SPI, in order to start ITMP measurement.
+ *
+ * @param   pSpiInterface        pointer to SPI configuration
+ * @param   adcMode              LTC ADCmeasurement mode (fast, normal or filtered)
+ * @param   adcMeasCh            number of cell voltage measured (2 cells or all cells)
+ *
+ * @return  retVal      #STD_OK if dummy byte was sent correctly by SPI, #STD_NOT_OK otherwise
+ *
+ */
+static STD_RETURN_TYPE_e LTC_StartITMPMeasurement(SPI_INTERFACE_CONFIG_s *pSpiInterface) {
+    FAS_ASSERT(pSpiInterface != NULL_PTR);
+    STD_RETURN_TYPE_e retVal = STD_OK;
+    retVal                   = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADSTAT_normal);
 }
 
 /**

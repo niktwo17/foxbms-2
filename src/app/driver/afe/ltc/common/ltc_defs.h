@@ -137,11 +137,12 @@ typedef enum {
     LTC_STATEMACH_READALLGPIO,             /*!<    */
     LTC_STATEMACH_READVOLTAGE_2CELLS,
     LTC_STATEMACH_STARTMEAS_2CELLS,
-    LTC_STATEMACH_USER_IO_CONTROL,  /*!< Control of the user port expander              */
-    LTC_STATEMACH_USER_IO_FEEDBACK, /*!< Control of the user port expander              */
-    LTC_STATEMACH_EEPROM_READ,      /*!< Control of the external EEPROM                 */
-    LTC_STATEMACH_EEPROM_WRITE,     /*!< Control of the external EEPROM                 */
-    LTC_STATEMACH_TEMP_SENS_READ,   /*!< Control of the external temperature sensor     */
+    LTC_STATEMACH_USER_IO_CONTROL,    /*!< Control of the user port expander              */
+    LTC_STATEMACH_USER_IO_FEEDBACK,   /*!< Control of the user port expander              */
+    LTC_STATEMACH_EEPROM_READ,        /*!< Control of the external EEPROM                 */
+    LTC_STATEMACH_EEPROM_WRITE,       /*!< Control of the external EEPROM                 */
+    LTC_STATEMACH_TEMP_SENS_READ,     /*!< Control of the external temperature sensor     */
+    LTC_STATEMACH_TEMP_SENS_INT_READ, /*!< Control of the internal temperature sensor     */
     LTC_STATEMACH_BALANCEFEEDBACK,
     LTC_STATEMACH_OPENWIRE_CHECK,
     LTC_STATEMACH_DEVICE_PARAMETER,
@@ -336,6 +337,13 @@ typedef enum {
     LTC_TEMP_SENS_FINISHED,                            /*!<    */
 } LTC_STATEMACH_TEMP_SENS_READ_e;
 
+/** Substates for the internal temperature sensor */
+typedef enum {
+    LTC_TRIGGER_ITMP_CONVERSION,
+    LTC_READ_ITMP,
+    LTC_EXIT_ITMP,
+} LTC_STATEMACH_ITMP_SUB_e;
+
 /** Substates for the multiplexer measurement configuration state */
 typedef enum {
     /* Init-Sequence */
@@ -367,16 +375,17 @@ typedef enum {
 
 /** State requests for the LTC state machine */
 typedef enum {
-    LTC_STATE_INIT_REQUEST,             /*!<    */
-    LTC_STATE_USER_IO_WRITE_REQUEST,    /*!<    */
-    LTC_STATE_USER_IO_READ_REQUEST,     /*!<    */
-    LTC_STATE_USER_IO_REQUEST,          /*!<    */
-    LTC_STATE_USER_IO_WRITE_REQUEST_TI, /*!<    */
-    LTC_STATE_USER_IO_READ_REQUEST_TI,  /*!<    */
-    LTC_STATE_EEPROM_READ_REQUEST,      /*!<    */
-    LTC_STATE_EEPROM_WRITE_REQUEST,     /*!<    */
-    LTC_STATE_EEPROM_READ_UID_REQUEST,  /*!<    */
-    LTC_STATE_TEMP_SENS_READ_REQUEST,   /*!<    */
+    LTC_STATE_INIT_REQUEST,               /*!<    */
+    LTC_STATE_USER_IO_WRITE_REQUEST,      /*!<    */
+    LTC_STATE_USER_IO_READ_REQUEST,       /*!<    */
+    LTC_STATE_USER_IO_REQUEST,            /*!<    */
+    LTC_STATE_USER_IO_WRITE_REQUEST_TI,   /*!<    */
+    LTC_STATE_USER_IO_READ_REQUEST_TI,    /*!<    */
+    LTC_STATE_EEPROM_READ_REQUEST,        /*!<    */
+    LTC_STATE_EEPROM_WRITE_REQUEST,       /*!<    */
+    LTC_STATE_EEPROM_READ_UID_REQUEST,    /*!<    */
+    LTC_STATE_TEMP_SENS_READ_REQUEST,     /*!<    */
+    LTC_STATE_TEMP_SENS_INT_READ_REQUEST, /*!<    */
     LTC_STATE_BALANCEFEEDBACK_REQUEST,
     LTC_STATE_REINIT_REQUEST,                    /*!<    */
     LTC_STATE_IDLE_REQUEST,                      /*!<    */

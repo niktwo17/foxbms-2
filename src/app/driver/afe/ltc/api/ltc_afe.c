@@ -119,6 +119,18 @@ extern STD_RETURN_TYPE_e AFE_RequestTemperatureRead(uint8_t string) {
 }
 
 //here we want to handle the different up to 4 strings
+extern STD_RETURN_TYPE_e AFE_RequestTemperatureInternalRead(uint8_t string) {
+    FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
+    STD_RETURN_TYPE_e retval = STD_OK;
+    LTC_REQUEST_s statereq   = {.request = LTC_STATE_TEMP_SENS_INT_READ_REQUEST, .string = string};
+
+    if (LTC_SetStateRequest(&ltc_stateBase, statereq) != LTC_OK) {
+        retval = STD_NOT_OK;
+    }
+    return retval;
+}
+
+//here we want to handle the different up to 4 strings
 extern STD_RETURN_TYPE_e AFE_RequestBalancingFeedbackRead(uint8_t string) {
     FAS_ASSERT(string < BS_NR_OF_TOTAL_STRINGS);
     STD_RETURN_TYPE_e retval = STD_NOT_OK;
