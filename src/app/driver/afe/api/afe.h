@@ -145,6 +145,13 @@ extern STD_RETURN_TYPE_e AFE_RequestIoRead(uint8_t string);
 extern STD_RETURN_TYPE_e AFE_RequestTemperatureRead(uint8_t string);
 
 /**
+ * @brief           Makes the request to the AFE state machine to read from the
+ *                  internal temperature sensor on slaves
+ * @param   string  string addressed by the request
+ */
+extern STD_RETURN_TYPE_e AFE_RequestTemperatureInternalRead(uint8_t string);
+
+/**
  * @brief           Makes the request to the AFE state machine to read
  *                  balancing feedback from the slaves
  * @param   string  string addressed by the request
