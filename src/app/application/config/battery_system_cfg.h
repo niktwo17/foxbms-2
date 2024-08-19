@@ -109,7 +109,7 @@ typedef enum {
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_MODULES_PER_STRING (1u)
+#define BS_NR_OF_MODULES_PER_STRING (6u)
 
 /**
  * @brief   number of cells per module
