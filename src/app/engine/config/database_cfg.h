@@ -271,18 +271,25 @@ typedef struct {
     /* This struct needs to be at the beginning of every database entry. During
      * the initialization of a database struct, uniqueId must be set to the
      * respective database entry representation in enum DATA_BLOCK_ID_e. */
-    DATA_BLOCK_HEADER_s header;                            /*!< Data block header */
-    uint8_t state;                                         /*!< for future use */
-    uint32_t eepromReadAddressToUse;                       /*!< address to read from for  slave EEPROM */
-    uint32_t eepromReadAddressLastUsed;                    /*!< last address used to read from slave EEPROM */
-    uint32_t eepromWriteAddressToUse;                      /*!< address to write to for slave EEPROM */
-    uint32_t eepromWriteAddressLastUsed;                   /*!< last address used to write to for slave EEPROM */
-    uint8_t ioValueOut[BS_NR_OF_MODULES_PER_STRING];       /*!< data to be written to the port expander */
-    uint8_t ioValueIn[BS_NR_OF_MODULES_PER_STRING];        /*!< data read from to the port expander */
-    uint8_t eepromValueWrite[BS_NR_OF_MODULES_PER_STRING]; /*!< data to be written to the slave EEPROM */
-    uint8_t eepromValueRead[BS_NR_OF_MODULES_PER_STRING];  /*!< data read from to the slave EEPROM */
-    uint8_t
-        externalTemperatureSensor[BS_NR_OF_MODULES_PER_STRING]; /*!< temperature from the external sensor on slave */
+    DATA_BLOCK_HEADER_s header;          /*!< Data block header */
+    uint8_t state;                       /*!< for future use */
+    uint32_t eepromReadAddressToUse;     /*!< address to read from for  slave EEPROM */
+    uint32_t eepromReadAddressLastUsed;  /*!< last address used to read from slave EEPROM */
+    uint32_t eepromWriteAddressToUse;    /*!< address to write to for slave EEPROM */
+    uint32_t eepromWriteAddressLastUsed; /*!< last address used to write to for slave EEPROM */
+    uint8_t ioValueOut[BS_NR_OF_STRINGS]
+                      [BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< data to be written to the port expander */
+    uint8_t ioValueIn[BS_NR_OF_STRINGS][BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< data read from to the port expander */
+    uint8_t eepromValueWrite[BS_NR_OF_STRINGS]
+                            [BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< data to be written to the slave EEPROM */
+    uint8_t eepromValueRead[BS_NR_OF_STRINGS]
+                           [BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< data read from to the slave EEPROM */
+    uint8_t externalTemperatureSensor
+        [BS_NR_OF_STRINGS][BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< temperature from the external sensor on slave */
+    // unit??? to be interpreted by the user
+    float internalTemperatureSensor
+        [BS_NR_OF_STRINGS]
+        [BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< temperature from the internal sensor on slave, unit: Celsius*/
 } DATA_BLOCK_SLAVE_CONTROL_s;
 
 /** data block struct of cell balancing feedback */
