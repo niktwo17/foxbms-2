@@ -111,7 +111,7 @@ typedef enum {
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_MODULES_PER_STRING        (6u)
+#define BS_NR_OF_MODULES_PER_STRING        (2u)
 #define BS_NR_OF_SERIES_MODULES_PER_STRING (BS_NR_OF_SERIES_STRINGS * BS_NR_OF_MODULES_PER_STRING)
 
 /**
@@ -122,7 +122,7 @@ typedef enum {
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (12u)
+#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (18u)
 
 /**
  * @brief   number of parallel connected battery cells in a cell block
@@ -343,7 +343,9 @@ typedef enum {
 #define BS_STANDBY_OPEN_WIRE_PERIOD_ms (600000)
 
 /** open-wire check in normal mode (set to true or false) */
-#define BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK (false)
+#define BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK     (true)
+#define BS_SLAVE_EXTERNAL_TEMPERATURE_CHECK    (false)
+#define BS_SLAVE_ONBOARD_DIE_TEMPERATURE_CHECK (false)
 
 /** Periodic open-wire check time in NORMAL state in ms */
 #define BS_NORMAL_OPEN_WIRE_PERIOD_ms (600000)

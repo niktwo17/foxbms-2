@@ -1388,6 +1388,11 @@ void BMS_Trigger(void) {
 #if BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE
                 nextOpenWireCheck = timestamp + BS_NORMAL_OPEN_WIRE_PERIOD_ms;
 #endif /* BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE */
+
+#if BS_SLAVE_EXTERNAL_TEMPERATURE_CHECK == TRUE
+                MEAS_RequestTemperatureRead(0);
+#endif /* BS_SLAVE_EXTERNAL_TEMPERATURE_CHECK == TRUE */
+
                 DATA_READ_DATA(&systemstate);
                 if (bms_state.nextstate == BMS_STATEMACH_CHARGE) {
                     systemstate.bmsCanState = BMS_CANSTATE_CHARGE;

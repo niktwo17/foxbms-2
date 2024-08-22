@@ -341,7 +341,8 @@ typedef enum {
 typedef enum {
     LTC_TRIGGER_ITMP_CONVERSION,
     LTC_READ_ITMP,
-    LTC_EXIT_ITMP,
+    LTC_SAVE_ITMP,
+    LTC_ITMP_FINISHED,
 } LTC_STATEMACH_ITMP_SUB_e;
 
 /** Substates for the multiplexer measurement configuration state */
