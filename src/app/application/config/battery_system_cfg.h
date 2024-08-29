@@ -343,7 +343,9 @@ typedef enum {
 #define BS_STANDBY_OPEN_WIRE_PERIOD_ms (600000)
 
 /** open-wire check in normal mode (set to true or false) */
-#define BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK (false)
+#define BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK     (true)
+#define BS_SLAVE_EXTERNAL_TEMPERATURE_CHECK    (false)
+#define BS_SLAVE_ONBOARD_DIE_TEMPERATURE_CHECK (false)
 
 /** Periodic open-wire check time in NORMAL state in ms */
 #define BS_NORMAL_OPEN_WIRE_PERIOD_ms (600000)

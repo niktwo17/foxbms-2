@@ -1388,6 +1388,11 @@ void BMS_Trigger(void) {
 #if BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE
                 nextOpenWireCheck = timestamp + BS_NORMAL_OPEN_WIRE_PERIOD_ms;
 #endif /* BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE */
+
+#if BS_SLAVE_EXTERNAL_TEMPERATURE_CHECK == TRUE
+                MEAS_RequestTemperatureRead(0);
+#endif /* BS_SLAVE_EXTERNAL_TEMPERATURE_CHECK == TRUE */
+
                 DATA_READ_DATA(&systemstate);
                 if (bms_state.nextstate == BMS_STATEMACH_CHARGE) {
                     systemstate.bmsCanState = BMS_CANSTATE_CHARGE;
@@ -1421,10 +1426,11 @@ void BMS_Trigger(void) {
                 } else {
 #if BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE
                     if (nextOpenWireCheck <= timestamp) {
-                        MEAS_RequestOpenWireCheck();
+                        MEAS_RequestOpenWireCheck(0);  //since we do not cycle strings here (yet)
                         nextOpenWireCheck = timestamp + BS_NORMAL_OPEN_WIRE_PERIOD_ms;
                     }
 #endif /* BS_NORMAL_PERIODIC_OPEN_WIRE_CHECK == TRUE */
+
                     bms_state.timer    = BMS_STATEMACH_SHORTTIME;
                     bms_state.substate = BMS_NORMAL_CLOSE_NEXT_STRING;
                     break;

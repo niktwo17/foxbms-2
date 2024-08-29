@@ -116,8 +116,8 @@ uint16_t ltc_TxPecBuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 static uint16_t ltc_used_cells_index[BS_NR_OF_STRINGS] = {0};
 /** local copies of database tables */
 /**@{*/
-static DATA_BLOCK_CELL_VOLTAGE_s ltc_cellVoltage         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
-static DATA_BLOCK_CELL_TEMPERATURE_s ltc_celltemperature = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
+static DATA_BLOCK_CELL_VOLTAGE_s ltc_cellVoltage              = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
+static DATA_BLOCK_CELL_TEMPERATURE_s ltc_celltemperature      = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
 static DATA_BLOCK_BALANCING_FEEDBACK_s ltc_balancing_feedback = {
     .header.uniqueId = DATA_BLOCK_ID_BALANCING_FEEDBACK_BASE};
 static DATA_BLOCK_BALANCING_CONTROL_s ltc_balancing_control = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
@@ -298,6 +298,7 @@ static uint16_t ltc_BC_cmdADOW_PDOWN_filtered_DCP0[4] = {
 static void LTC_SetFirstMeasurementCycleFinished(LTC_STATE_s *ltc_state);
 static void LTC_InitializeDatabase(LTC_STATE_s *ltc_state);
 static void LTC_SaveBalancingFeedback(LTC_STATE_s *ltc_state, uint16_t *DataBufferSPI_RX, uint8_t stringNumber);
+static void LTC_SaveITMP_Read(LTC_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t stringNumber);
 static void LTC_GetBalancingControlValues(LTC_STATE_s *ltc_state);
 static void LTC_SaveLastStates(LTC_STATE_s *ltc_state);
 static void LTC_StateTransition(LTC_STATE_s *ltc_state, LTC_STATEMACH_e state, uint8_t substate, uint16_t timer_ms);
@@ -1531,7 +1532,8 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
                     if (LTC_IsFirstMeasurementCycleFinished(ltc_state) == false) {
                         LTC_SetFirstMeasurementCycleFinished(ltc_state);
                     }
-                    statereq = LTC_TransferStateRequest(ltc_state, &tmpbusID, &tmpadcMode, &tmpadcMeasCh);
+                    statereq         = LTC_TransferStateRequest(ltc_state, &tmpbusID, &tmpadcMode, &tmpadcMeasCh);
+                    statereq.request = LTC_STATE_TEMP_SENS_READ_REQUEST;  // just for testing purposes
                     if (statereq.request == LTC_STATE_USER_IO_WRITE_REQUEST) {
                         LTC_StateTransition(
                             ltc_state,
@@ -3959,6 +3961,7 @@ static STD_RETURN_TYPE_e LTC_StartITMPMeasurement(SPI_INTERFACE_CONFIG_s *pSpiIn
     FAS_ASSERT(pSpiInterface != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_OK;
     retVal                   = LTC_TRANSMIT_COMMAND(pSpiInterface, ltc_cmdADSTAT_normal);
+    return retVal;
 }
 
 /**
@@ -4492,7 +4495,7 @@ static void LTC_SetEepromWriteCommand(LTC_STATE_s *ltc_state, uint16_t *pTxBuff,
         }
     } else { /* step == 1 */
         for (uint16_t i = 0; i < LTC_N_LTC; i++) {
-            const uint8_t data = ltc_state->ltcData.slaveControl->eepromValueWrite[i];
+            const uint8_t data = ltc_state->ltcData.slaveControl->eepromValueWrite[0][i];  //dirty quick hack
 
             pTxBuff[4u + (i * 8u)] = LTC_ICOM_BLANK | (data >> 4u); /* 0x6 : LTC6804: ICOM START from Master */
             pTxBuff[5u + (i * 8u)] = LTC_FCOM_MASTER_NACK_STOP | (data << 4u);
@@ -4570,14 +4573,14 @@ static STD_RETURN_TYPE_e LTC_SendI2cCommand(
     STD_RETURN_TYPE_e statusSPI = STD_NOT_OK;
 
     for (uint16_t i = 0; i < BS_NR_OF_MODULES_PER_STRING; i++) {
-        pTxBuff[4u + (i * 6u)] = cmd_data[0];
-        pTxBuff[5u + (i * 6u)] = cmd_data[1];
+        pTxBuff[4u + (i * 8u)] = cmd_data[0];
+        pTxBuff[5u + (i * 8u)] = cmd_data[1];
 
-        pTxBuff[6u + (i * 6u)] = cmd_data[2];
-        pTxBuff[7u + (i * 6u)] = cmd_data[3];
+        pTxBuff[6u + (i * 8u)] = cmd_data[2];
+        pTxBuff[7u + (i * 8u)] = cmd_data[3];
 
-        pTxBuff[8u + (i * 6u)] = cmd_data[4];
-        pTxBuff[9u + (i * 6u)] = cmd_data[5];
+        pTxBuff[8u + (i * 8u)] = cmd_data[4];
+        pTxBuff[9u + (i * 8u)] = cmd_data[5];
     }
 
     /* send WRCOMM to send I2C message */
@@ -4693,7 +4696,8 @@ static STD_RETURN_TYPE_e LTC_SetPortExpander(
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
 
     for (uint16_t i = 0; i < BS_NR_OF_MODULES_PER_STRING; i++) {
-        const uint8_t output_data = ltc_state->ltcData.slaveControl->ioValueOut[BS_NR_OF_MODULES_PER_STRING - 1 - i];
+        // dirty quick hack!
+        const uint8_t output_data = ltc_state->ltcData.slaveControl->ioValueOut[0][BS_NR_OF_MODULES_PER_STRING - 1 - i];
 
         pTxBuff[4u + (i * 8u)] = LTC_ICOM_START |
                                  0x04u; /* 6: ICOM0 start condition, 4: upper nibble of PCA8574 address */
@@ -4831,7 +4835,8 @@ static STD_RETURN_TYPE_e LTC_SetPortExpanderOutputTi(
     DATA_READ_DATA(ltc_state->ltcData.slaveControl);
 
     for (uint16_t i = 0; i < BS_NR_OF_MODULES_PER_STRING; i++) {
-        const uint8_t output_data = ltc_state->ltcData.slaveControl->ioValueOut[BS_NR_OF_MODULES_PER_STRING - 1 - i];
+        const uint8_t output_data =
+            ltc_state->ltcData.slaveControl->ioValueOut[0][BS_NR_OF_MODULES_PER_STRING - 1 - i];  //dirty quick hack
 
         pTxBuff[4u + (i * 8u)] = LTC_ICOM_START | 0x4u; /* upper nibble of TCA6408A address */
         pTxBuff[5u + (i * 8u)] = (uint8_t)((LTC_PORTEXPANDER_ADR_TI << 1u) << 4u) |
