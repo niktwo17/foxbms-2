@@ -69,6 +69,7 @@
  * This variable contains the internal state of the LTC state machine.
  */
 extern LTC_STATE_s ltc_stateBase;
+extern LTC_MCU_STATE_s ltc_mcu_stateBase;
 
 /*========== Extern Function Prototypes =====================================*/
 
@@ -79,6 +80,8 @@ extern LTC_STATE_s ltc_stateBase;
  * It must be called time-triggered, every 1ms.
  */
 extern void LTC_Trigger(LTC_STATE_s *ltc_state);
+
+extern void LTC_MCU_Trigger(LTC_MCU_STATE_s *ltc_mcu_state);
 
 /**
  * @brief   sets the current state request of the state variable ltc_state.
@@ -96,6 +99,7 @@ extern void LTC_Trigger(LTC_STATE_s *ltc_state);
  * @return current state request, taken from LTC_STATE_REQUEST_e
  */
 extern LTC_RETURN_TYPE_e LTC_SetStateRequest(LTC_STATE_s *ltc_state, LTC_REQUEST_s statereq);
+extern LTC_RETURN_TYPE_e LTC_MCU_SetStateRequest(LTC_MCU_STATE_s *ltc_mcu_state, LTC_REQUEST_s statereq);
 
 /**
  * @brief  gets the measurement initialization status.

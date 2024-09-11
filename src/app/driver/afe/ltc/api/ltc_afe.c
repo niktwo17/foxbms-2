@@ -74,6 +74,7 @@
 
 extern STD_RETURN_TYPE_e AFE_TriggerIc(void) {
     LTC_Trigger(&ltc_stateBase);
+    LTC_MCU_Trigger(&ltc_mcu_stateBase);
     return STD_OK;
 }
 
@@ -142,7 +143,8 @@ extern STD_RETURN_TYPE_e AFE_StartMeasurement(void) {
     STD_RETURN_TYPE_e retval = STD_OK;
     LTC_REQUEST_s statereq   = {.request = LTC_STATE_INIT_REQUEST, .string = 0x0u};
 
-    if (LTC_SetStateRequest(&ltc_stateBase, statereq) != LTC_OK) {
+    if ((LTC_SetStateRequest(&ltc_stateBase, statereq) != LTC_OK) ||
+        (LTC_MCU_SetStateRequest(&ltc_mcu_stateBase, statereq) != LTC_OK)) {
         retval = STD_NOT_OK;
     }
     return retval;

@@ -160,6 +160,44 @@ typedef enum {
     LTC_STATEMACH_ERROR_INITIALIZATION, /*!< Error-State: initialization error              */
 } LTC_STATEMACH_e;
 
+/** States of the LTC state machine */
+typedef enum {
+    /* Init-Sequence */
+    MCU_SM_INIT, /*!<    */
+    /* Data Measurement Cycle */
+    MCU_SM_MEAS_ENTRY,   /*!<    */
+    MCU_SM_MEAS_REENTRY, /*!<    */
+    MCU_SM_MEAS_REQ,     /*!<    */
+    MCU_SM_MEAS_READ,    /*!<    */
+    MCU_SM_MEAS_SAVE,    /*!<    */
+    MCU_SM_MEAS_FINISH,  /*!<    */
+    MCU_SM_IDLE,         /*!<    */
+    MCU_SM_UNDEF,        /*!< undefined state                                */
+    MCU_SM_RESERVED1,    /*!< reserved state                                 */
+    MCU_SM_ERR,          /*!< Error-State: general error                     */
+} LTC_MCU_STATEMACH_e;
+
+typedef enum {
+    ERR_GEN,
+    ERR_SPI,
+    ERR_PEC,
+    ERR_INIT,
+} LTC_MCU_ERR_SUB_e;
+
+typedef enum {
+    MEAS_VOLT,
+    MEAS_TEMP,
+    MEAS_CURRENT,
+} LTC_MCU_MEAS_SUB_e;
+
+typedef enum {
+    INIT_STRING,   /*!<    */
+    INIT_ENTRY,    /*!<    */
+    INIT_RE_ENTRY, /*!<    */
+    INIT_MAIN,     /*!<    */
+    INIT_EXIT,     /*!<    */
+} LTC_MCU_STATE_SUB_e;
+
 /** General substates */
 typedef enum {
     LTC_ENTRY,           /*!< Substate entry state       */
@@ -434,6 +472,10 @@ typedef struct {
     LTC_MUX_CH_CFG_s *seqptr; /*!< pointer to the multiplexer sequence   */
 } LTC_MUX_SEQUENCE_s;
 
+typedef struct {
+    uint8_t PEC_valid[BS_NR_OF_STRINGS]; /*!<    */
+} LTC_MCU_ERRORTABLE_s;
+
 /** This struct contains pointer to used data buffers */
 typedef struct {
     SPI_INTERFACE_CONFIG_s *pSpiInterface;
@@ -454,6 +496,17 @@ typedef struct {
     uint16_t *GPIOVoltages;   /* LTC2_NUMBER_OF_GPIOS * NR_OF_LTCs */
     uint16_t *valid_GPIOPECs; /* NR_OF_LTCs */
 } LTC_DATAPTR_s;
+
+/** This struct contains pointer to used data buffers */
+typedef struct {
+    SPI_INTERFACE_CONFIG_s *pSpiInterface;
+    uint16_t *txBuffer;
+    uint16_t *rxBuffer;
+    uint32_t frameLength;
+    DATA_BLOCK_MCU_s *currentSensor;
+    LTC_MCU_ERRORTABLE_s *errorTable;
+    uint16_t *valid_GPIOPECs; /* NR_OF_LTCs */
+} LTC_MCU_DATAPTR_s;
 
 /** This struct contains error counter and pointer to used error buffers */
 typedef struct {
@@ -588,6 +641,64 @@ typedef struct {
         [BS_NR_OF_STRINGS]; /*!< number of multiplexer channels that have to be measured; end number of sequence, where measurement is finished*/
     uint8_t configuration[6]; /*!< holds the configuration of the ltc (configuration register) */
 } LTC_STATE_s;
+
+typedef struct {
+    uint16_t timer; /*!< time in ms before the state machine processes the next state, e.g. in counts of 1ms */
+    LTC_TASK_TYPE_e taskMode;      /*!< current task of the state machine */
+    LTC_REQUEST_s statereq;        /*!< current state request made to the state machine */
+    LTC_MCU_STATEMACH_e state;     /*!< state of Driver State Machine */
+    uint8_t substate;              /*!< current substate of the state machine */
+    LTC_MCU_STATEMACH_e laststate; /*!< previous state of the state machine */
+    uint8_t lastsubstate;          /*!< previous substate of the state machine */
+    LTC_ADCMODE_e adcMode;         /*!< current LTC ADCmeasurement mode (fast, normal or filtered) */
+    LTC_ADCMODE_e voltMeasMode;    /*!< current LTC ADCmeasurement mode (fast, normal or filtered) */
+    LTC_ADCMODE_e gpioMeasMode;    /*!< current LTC ADCmeasurement mode (fast, normal or filtered) */
+    LTC_ADCMODE_e adcModereq;      /*!< requested LTC ADCmeasurement mode (fast, normal or filtered) */
+    LTC_ADCMEAS_CHAN_e
+        adcMeasCh; /*!< current number of channels measured for GPIOS (one at a time for multiplexers or all five GPIOs) */
+    LTC_ADCMEAS_CHAN_e
+        adcMeasChreq; /*!< requested number of channels measured for GPIOS (one at a time for multiplexers or all five GPIOs) */
+    uint8_t
+        numberOfMeasuredMux; /*!< number of multiplexer channels measured by the LTC analog front-end before a voltage measurement is made */
+    uint32_t ErrPECCounter; /*!< counts the number of times there was A PEC (CRC) error during communication with LTC */
+    uint8_t
+        ErrRetryCounter; /*!< counts how many times the drivers retried to communicate with LTC in case of a communication error */
+    uint32_t ErrRequestCounter; /*!< counts the number of illegal requests to the LTC state machine */
+    uint8_t triggerentry;       /*!< counter for re-entrance protection (function running flag) */
+    uint32_t
+        commandDataTransferTime; /*!< time needed for sending an instruction to the LTC, followed by data transfer from the LTC */
+    uint32_t commandTransferTime; /*!< time needed for sending an instruction to the LTC */
+    uint32_t
+        gpioClocksTransferTime; /*!< time needed for sending 72 clock signal to the LTC, used for I2C communication */
+    uint32_t VoltageSampleTime; /*!< time stamp at which the cell voltage were measured */
+    uint32_t CurrentSampleTime; /*!< time stamp at which the current was measured */
+    uint8_t instanceID;         /*!< number to distinguish between different ltc states, starting with 0,1,2,3....8 */
+    uint8_t busSize;            /*!< number of connected LTCs to parallel bus network */
+    LTC_ERROR_s errStatus;      /*!< contains pointer to local error buffer and error indicators */
+    uint8_t *ltcIDs;            /*!< array with LTC IDs */
+    uint8_t cntDeviceRD;        /*!< current Index of array ltcIDs to determine device ID */
+    uint32_t ctrlCallCnt;       /*!< counts the LTC2_CTRL calls */
+    uint8_t taskCycleCnt;       /*!< counts the current task cycle */
+    LTC_REUSE_MODE_e
+        reusageMeasurementMode; /*!< flag that indicates if currently any state is reused i.e. cell voltage measurement */
+    LTC_CONFIG_s ltcConfig;     /*!< struct that holds the measurement configuration of the ltc network */
+    bool first_measurement_made;          /*!< flag that indicates if the first measurement cycle was completed */
+    STD_RETURN_TYPE_e check_spi_flag;     /*!< indicates if interrupt flag or timer must be considered */
+    uint8_t resendCommandCounter;         /*!< counter if commandy should be send multiple times e.g. ADOW command */
+    bool transmit_ongoing;                /*!< SPI transmissioncurrently ongoing */
+    STD_RETURN_TYPE_e dummyByte_ongoing;  /*!< SPI dummy byte is currently transmitted */
+    SPI_INTERFACE_CONFIG_s *spiSeqPtr;    /*!< pointer to the SPI sequence to be measured */
+    SPI_INTERFACE_CONFIG_s *spiSeqEndPtr; /*!< pointer to the end of the SPI sequence */
+    uint8_t spiNumberInterfaces;          /*!< number of SPI channels that have to be measured */
+    uint8_t currentString;                /*!< string currently being addressed */
+    uint8_t requestedString;              /*!< string addressed by the current state request */
+    DIAG_ID_e spiDiagErrorEntry;          /*!< diagnosis entry for SPI related events */
+    DIAG_ID_e pecDiagErrorEntry;          /*!< diagnosis entry for PEC related events */
+    DIAG_ID_e voltMeasDiagErrorEntry;     /*!< diagnosis entry for voltage measurement related events */
+    DIAG_ID_e tempMeasDiagErrorEntry;     /*!< diagnosis entry for temperature measurement related events */
+    LTC_MCU_DATAPTR_s ltcData;            /*!< contains pointers to the local data buffer */
+    uint8_t configuration[6];             /*!< holds the configuration of the ltc (configuration register) */
+} LTC_MCU_STATE_s;
 
 /*========== Extern Function Prototypes =====================================*/
 

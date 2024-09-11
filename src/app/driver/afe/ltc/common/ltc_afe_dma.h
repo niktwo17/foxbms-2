@@ -94,6 +94,15 @@ extern bool AFE_IsTransmitOngoing(LTC_STATE_s *pLtcState);
  */
 extern void AFE_SetTransmitOngoing(LTC_STATE_s *pLtcState);
 
+extern bool MCU_IsTransmitOngoing(LTC_MCU_STATE_s *pLtcState);
+
+/**
+ * @brief   sets the SPI transmit status.
+ *
+ * @param[in,out] pLtcState   pointer to state struct to set transmission state to ongoing
+ */
+extern void MCU_SetTransmitOngoing(LTC_MCU_STATE_s *pLtcState);
+
 /*========== Externalized Static Functions Prototypes (Unit Test) ===========*/
 #ifdef UNITY_UNIT_TEST
 #endif

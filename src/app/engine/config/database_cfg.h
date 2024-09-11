@@ -96,6 +96,7 @@ typedef enum {
     DATA_BLOCK_ID_HTSEN,
     DATA_BLOCK_ID_INSULATION_MONITORING,
     DATA_BLOCK_ID_INTERLOCK_FEEDBACK,
+    DATA_BLOCK_ID_MCU,
     DATA_BLOCK_ID_MIN_MAX,
     DATA_BLOCK_ID_MOL_FLAG,
     DATA_BLOCK_ID_MOVING_AVERAGE,
@@ -246,6 +247,38 @@ typedef struct {
     uint32_t timestampHighVoltage[BS_NR_OF_STRINGS]
                                  [BS_NR_OF_VOLTAGES_FROM_CURRENT_SENSOR]; /*!< timestamp of high voltage measurement */
 } DATA_BLOCK_CURRENT_SENSOR_s;
+
+/** data block struct of current measurement */
+typedef struct {
+    /* This struct needs to be at the beginning of every database entry. During
+     * the initialization of a database struct, uniqueId must be set to the
+     * respective database entry representation in enum DATA_BLOCK_ID_e. */
+    DATA_BLOCK_HEADER_s header;                                /*!< Data block header */
+    int32_t current_mA[BS_NR_OF_MCU];                          /*!< unit: mA */
+    uint8_t invalidCurrentMeasurement[BS_NR_OF_MCU];           /*!< 0: measurement valid, 1: measurement invalid */
+    uint8_t newCurrent;                                        /*!< 0: measurement valid, 1: measurement invalid */
+    uint32_t previousTimestampCurrent[BS_NR_OF_MCU];           /*!< timestamp of current measurement */
+    uint32_t timestampCurrent[BS_NR_OF_MCU];                   /*!< timestamp of current measurement */
+    int32_t sensorTemperature_ddegC[BS_NR_OF_MCU];             /*!< unit: 0.1&deg;C */
+    uint8_t invalidSensorTemperatureMeasurement[BS_NR_OF_MCU]; /*!< 0: measurement valid, 1: measurement invalid */
+    int32_t power_W[BS_NR_OF_MCU];                             /*!< unit: W */
+    uint8_t invalidPowerMeasurement[BS_NR_OF_MCU];             /*!< 0: measurement valid, 1: measurement invalid */
+    uint8_t newPower;                                          /*!< counter that indicates a new power measurement */
+    uint32_t previousTimestampPower[BS_NR_OF_MCU];             /*!< previous timestamp of power measurement */
+    uint32_t timestampPower[BS_NR_OF_MCU];                     /*!< timestamp of power measurement */
+    int32_t currentCounter_As[BS_NR_OF_MCU];                   /*!< unit: A.s */
+    uint8_t invalidCurrentCountingMeasurement[BS_NR_OF_MCU];   /*!< 0: measurement valid, 1: measurement invalid */
+    uint32_t previousTimestampCurrentCounting[BS_NR_OF_MCU];   /*!< previous timestamp of CC measurement */
+    uint32_t timestampCurrentCounting[BS_NR_OF_MCU];           /*!< timestamp of CC measurement */
+    int32_t energyCounter_Wh[BS_NR_OF_MCU];                    /*!< unit: Wh */
+    uint8_t invalidEnergyCountingMeasurement[BS_NR_OF_MCU];    /*!< 0: measurement valid, 1: measurement invalid */
+    uint32_t previousTimestampEnergyCounting[BS_NR_OF_MCU];    /*!< previous timestamp of EC measurement */
+    uint32_t timestampEnergyCounting[BS_NR_OF_MCU];            /*!< timestamp of EC measurement */
+    uint8_t invalidHighVoltageMeasurement[BS_NR_OF_MCU];       /*!< 0: measurement valid, 1: measurement invalid */
+    int32_t highVoltage_mV[BS_NR_OF_MCU];                      /*!< unit: mV */
+    uint32_t previousTimestampHighVoltage[BS_NR_OF_MCU];       /*!< previous timestamp of high voltage measurement */
+    uint32_t timestampHighVoltage[BS_NR_OF_MCU];               /*!< timestamp of high voltage measurement */
+} DATA_BLOCK_MCU_s;
 
 /** data structure declaration of DATA_BLOCK_BALANCING_CONTROL */
 typedef struct {

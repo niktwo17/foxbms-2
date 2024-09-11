@@ -76,21 +76,38 @@
 
 extern bool AFE_IsTransmitOngoing(LTC_STATE_s *pLtcState) {
     FAS_ASSERT(pLtcState != NULL_PTR);
-    return pLtcState->transmit_ongoing;
+    //return pLtcState->transmit_ongoing;
+    return (ltc_stateBase.transmit_ongoing || ltc_mcu_stateBase.transmit_ongoing);
 }
 
 extern void AFE_SetTransmitOngoing(LTC_STATE_s *pLtcState) {
     FAS_ASSERT(pLtcState != NULL_PTR);
-    pLtcState->transmit_ongoing = true;
+    //pLtcState->transmit_ongoing = true;
+    ltc_stateBase.transmit_ongoing     = true;
+    ltc_mcu_stateBase.transmit_ongoing = true;
 }
 
 /* Function called on DMA complete interrupts (TX and RX). */
 void AFE_DmaCallback(uint8_t spiIndex) {
     if (spiIndex == 0u) {
-        ltc_stateBase.transmit_ongoing = false;
+        ltc_stateBase.transmit_ongoing     = false;
+        ltc_mcu_stateBase.transmit_ongoing = false;
     } else {
         FAS_ASSERT(FAS_TRAP);
     }
+}
+
+extern bool MCU_IsTransmitOngoing(LTC_MCU_STATE_s *pLtcState) {
+    FAS_ASSERT(pLtcState != NULL_PTR);
+    //return pLtcState->transmit_ongoing;
+    return (ltc_mcu_stateBase.transmit_ongoing || ltc_stateBase.transmit_ongoing);
+}
+
+extern void MCU_SetTransmitOngoing(LTC_MCU_STATE_s *pLtcState) {
+    FAS_ASSERT(pLtcState != NULL_PTR);
+    //pLtcState->transmit_ongoing = true;
+    ltc_mcu_stateBase.transmit_ongoing = true;
+    ltc_stateBase.transmit_ongoing     = true;
 }
 
 /*========== Externalized Static Function Implementations (Unit Test) =======*/

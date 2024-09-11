@@ -78,6 +78,8 @@
  */
 #define LTC_N_BYTES_FOR_DATA_TRANSMISSION (4 + (8 * LTC_N_LTC))
 
+#define MCU_N_BYTES_FOR_DATA_TRANSMISSION (12)
+
 /**
  * Number of Bytes to be transmitted in daisy-chain
  * Data
