@@ -174,7 +174,7 @@ extern void FAS_StoreAssertLocation(uint32_t *pc, uint32_t line);
  * @brief   Set the assert level to a standard value if not set by the build.
  */
 #ifndef FAS_ASSERT_LEVEL
-#define FAS_ASSERT_LEVEL FAS_ASSERT_LEVEL_INF_LOOP_AND_DISABLE_INTERRUPTS
+#define FAS_ASSERT_LEVEL FAS_ASSERT_LEVEL_NO_OPERATION
 #endif
 
 /*============= define how the assert shall behave =============*/

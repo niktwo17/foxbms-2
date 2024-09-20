@@ -111,7 +111,7 @@ typedef enum {
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_MODULES_PER_STRING        (6u)
+#define BS_NR_OF_MODULES_PER_STRING        (2u)
 #define BS_NR_OF_SERIES_MODULES_PER_STRING (BS_NR_OF_SERIES_STRINGS * BS_NR_OF_MODULES_PER_STRING)
 
 /**
@@ -122,7 +122,7 @@ typedef enum {
  *          <a href="../../../../introduction/naming-conventions.html" target="_blank">Naming Conventions</a>.
  * @ptype   uint
  */
-#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (12u)
+#define BS_NR_OF_CELL_BLOCKS_PER_MODULE (18u)
 
 /**
  * @brief   number of parallel connected battery cells in a cell block

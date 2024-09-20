@@ -113,7 +113,7 @@ uint16_t ltc_TxPecBuffer[LTC_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 /**@}*/
 
 /** index of used cells */
-static uint16_t ltc_used_cells_index[BS_NR_OF_STRINGS] = {0};
+static uint16_t ltc_used_cells_index[BS_NR_OF_TOTAL_STRINGS] = {0};
 /** local copies of database tables */
 /**@{*/
 static DATA_BLOCK_CELL_VOLTAGE_s ltc_cellVoltage              = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
@@ -595,7 +595,7 @@ static void LTC_CondBasedStateTransition(
 extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
     /* Pointer validity check */
     FAS_ASSERT(ltc_state != NULL_PTR);
-    FAS_ASSERT(stringNumber < BS_NR_OF_STRINGS);
+    FAS_ASSERT(stringNumber < BS_NR_OF_TOTAL_STRINGS);
 
     /* Iterate over all cell to:
      *
@@ -605,7 +605,9 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
      */
     STD_RETURN_TYPE_e cellVoltageMeasurementValid = STD_OK;
     int32_t stringVoltage_mV                      = 0;
+    int32_t module_Voltage_mV                     = 0;
     uint16_t numberValidMeasurements              = 0;
+    //int32_t moduleVoltage[BS_NR_OF_TOTAL_STRINGS * BS_NR_OF_MODULES_PER_STRING] = {0};  // seems right?
 
     uint8_t stringSeries = 0;
     if (1 == stringNumber) {
@@ -622,6 +624,7 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
     for (uint8_t m = 0u + BS_NR_OF_MODULES_PER_STRING * stringSeries;
          m < BS_NR_OF_MODULES_PER_STRING * (1u + stringSeries);
          m++) {
+        module_Voltage_mV = 0;
         for (uint8_t cb = 0u; cb < BS_NR_OF_CELL_BLOCKS_PER_MODULE; cb++) {
             /* ------- 1. Check open-wires -----------------
                  * Is cell N input not open wire &&
@@ -642,7 +645,7 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
                                   ltc_plausibleCellVoltages681x)) {
                     /* Cell voltage is valid ->  calculate string voltage */
                     /* -------- 3. Calculate string values ------------- */
-                    stringVoltage_mV += ltc_state->ltcData.cellVoltage->cellVoltage_mV[stringNumber][m][cb];
+                    module_Voltage_mV += ltc_state->ltcData.cellVoltage->cellVoltage_mV[stringNumber][m][cb];
                     numberValidMeasurements++;
                 } else {
                     /* Invalidate cell voltage measurement */
@@ -655,8 +658,12 @@ extern void LTC_SaveVoltages(LTC_STATE_s *ltc_state, uint8_t stringNumber) {
                 cellVoltageMeasurementValid = STD_NOT_OK;
             }
         }
+        ltc_state->ltcData.cellVoltage->moduleVoltage_mV[stringNumber][m] = module_Voltage_mV;
     }
     DIAG_CheckEvent(cellVoltageMeasurementValid, ltc_state->voltMeasDiagErrorEntry, DIAG_STRING, stringNumber);
+    for (uint8_t m = 0u; m < BS_NR_OF_MODULES_PER_STRING * BS_NR_OF_SERIES_STRINGS; m++) {
+        stringVoltage_mV += ltc_state->ltcData.cellVoltage->moduleVoltage_mV[stringNumber][m];
+    }
     ltc_state->ltcData.cellVoltage->stringVoltage_mV[stringNumber]    = stringVoltage_mV;
     ltc_state->ltcData.cellVoltage->nrValidCellVoltages[stringNumber] = numberValidMeasurements;
 
@@ -1045,6 +1052,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
 
                 ltc_state->check_spi_flag = STD_NOT_OK;
                 retVal = LTC_StartVoltageMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode, ltc_state->adcMeasCh);
+                retVal = LTC_StartVoltageMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode, ltc_state->adcMeasCh);
 
                 LTC_CondBasedStateTransition(
                     ltc_state,
@@ -1069,6 +1077,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
 
                 ltc_state->check_spi_flag = STD_NOT_OK;
                 retVal = LTC_StartVoltageMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode, ltc_state->adcMeasCh);
+                retVal = LTC_StartVoltageMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode, ltc_state->adcMeasCh);
 
                 LTC_CondBasedStateTransition(
                     ltc_state,
@@ -1086,13 +1095,6 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
 
             /****************************READ VOLTAGE************************************/
             case LTC_STATEMACH_READVOLTAGE:
-
-                LTC_ReadRegister(
-                    ltc_cmdRDCVA,
-                    ltc_state->spiSeqPtr,
-                    ltc_state->ltcData.txBuffer,
-                    ltc_state->ltcData.rxBuffer,
-                    ltc_state->ltcData.frameLength);
 
                 if (ltc_state->substate == LTC_READ_VOLTAGE_REGISTER_A_RDCVA_READVOLTAGE) {
                     ltc_state->check_spi_flag = STD_OK;
@@ -3678,8 +3680,7 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
             /* The daisy-chain works like a shift register, so the order has to be reversed:
                when addressing e.g. the first module in the daisy-chain, the data will be sent last on the SPI bus and
                when addressing e.g. the last module in the daisy-chain, the data will be sent first on the SPI bus  */
-            const uint16_t reverseModuleNumber = BS_NR_OF_MODULES_PER_STRING - j -
-                                                 stringSeries * BS_NR_OF_MODULES_PER_STRING - 1u;
+            const uint16_t reverseModuleNumber = BS_NR_OF_MODULES_PER_STRING * (1 + stringSeries) - j - 1u;
 
             /* FC = disable all pull-downs, REFON = 1 (reference always on), DTEN off, ADCOPT = 0 */
             pTxBuff[4u + (reverseModuleNumber * 8u)] = 0xFC;
@@ -3761,8 +3762,7 @@ static STD_RETURN_TYPE_e LTC_BalanceControl(
             /* The daisy-chain works like a shift register, so the order has to be reversed:
                when addressing e.g. the first module in the daisy-chain, the data will be sent last on the SPI bus and
                when addressing e.g. the last module in the daisy-chain, the data will be sent first on the SPI bus  */
-            const uint16_t reverseModuleNumber = BS_NR_OF_MODULES_PER_STRING - j -
-                                                 stringSeries * BS_NR_OF_MODULES_PER_STRING - 1u;
+            const uint16_t reverseModuleNumber = BS_NR_OF_MODULES_PER_STRING * (1 + stringSeries) - j - 1u;
 
             /* 0x0F = disable pull-downs on GPIO6-9 */
             pTxBuff[4u + (reverseModuleNumber * 8u)] = 0x0F;

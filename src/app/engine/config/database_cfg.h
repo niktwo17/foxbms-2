@@ -142,8 +142,6 @@ typedef struct {
         [BS_NR_OF_SERIES_MODULES_PER_STRING];       /*!< bitmask if voltages are valid. 0->valid, 1->invalid */
     uint16_t nrValidCellVoltages[BS_NR_OF_STRINGS]; /*!< number of valid voltages */
     uint32_t moduleVoltage_mV[BS_NR_OF_STRINGS][BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< unit: mV */
-    bool validModuleVoltage[BS_NR_OF_STRINGS]
-                           [BS_NR_OF_SERIES_MODULES_PER_STRING]; /*!< 0 -> if PEC okay; 1 -> PEC error */
 } DATA_BLOCK_CELL_VOLTAGE_s;
 
 /** data block struct of cell temperatures */
