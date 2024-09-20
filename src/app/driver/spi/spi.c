@@ -76,10 +76,10 @@
 /*========== Static Constant and Variable Definitions =======================*/
 static uint32_t spi_txLastWord[DMA_NUMBER_SPI_INTERFACES] = {0};
 
-extern spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS];
-extern spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS];
-extern spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_STRINGS];
-extern spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_STRINGS];
+extern spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_TOTAL_STRINGS];
+extern spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_TOTAL_STRINGS];
+extern spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_TOTAL_STRINGS];
+extern spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_TOTAL_STRINGS];
 
 /** Defines for hardware chip select pins @{ */
 #define SPI_HARDWARE_CHIP_SELECT_PIN_0 (0u)
@@ -145,7 +145,7 @@ static uint8_t SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e chipSelectType, uint3
     * @brief   Initializes the configuration of SPI interfaces.
     */
 static void SPI_InitializeConfiguration(void) {
-    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_TOTAL_STRINGS; s++) {
         spi_ltcInterface[s].pConfig  = &spi_kLtcDataConfig[s];
         spi_ltcInterface[s].pNode    = spiREG1;
         spi_ltcInterface[s].pGioPort = &(spiREG1->PC3);
