@@ -96,7 +96,7 @@ static spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_STRINGS] = {
 };
 
 /** SPI data configuration struct for LTC communication */
-static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS] = {
+static spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_STRINGS + BS_NR_OF_MCU] = {
     {                      /* struct is implemented in the TI HAL and uses uppercase true and false */
      .CS_HOLD = TRUE,      /* If true, HW chip select kept active between words */
      .WDEL    = FALSE,     /* Activation of delay between words */
@@ -192,7 +192,7 @@ SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_STRINGS] = {
  * SPI interface configuration for LTC communication
  * This is a list of structs because of multistring
  */
-SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS] = {
+SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_STRINGS + BS_NR_OF_MCU] = {
     {
         .pConfig  = &spi_kLtcDataConfig[0u],
         .pNode    = spiREG1,

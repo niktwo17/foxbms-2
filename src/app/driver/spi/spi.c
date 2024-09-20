@@ -136,7 +136,7 @@ static uint8_t SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e chipSelectType, uint3
     return mappedChipSelectPin;
 }
 static void SPI_InitializeChipSelects(void) {
-    for (uint8_t s = 0u; s < BS_NR_OF_STRINGS; s++) {
+    for (uint8_t s = 0u; s < (BS_NR_OF_STRINGS + BS_NR_OF_MCU); s++) {
         spi_adiInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_adiInterface[s].csType, spi_adiInterface[s].csPin);
         spi_ltcInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_ltcInterface[s].csType, spi_ltcInterface[s].csPin);
         spi_nxp775InterfaceTx[s].pConfig->CSNR =
