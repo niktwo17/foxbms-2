@@ -117,7 +117,8 @@ static uint16_t ltc_used_cells_index[BS_NR_OF_STRINGS] = {0};
 /** local copies of database tables */
 /**@{*/
 static DATA_BLOCK_CELL_VOLTAGE_s ltc_cellVoltage         = {.header.uniqueId = DATA_BLOCK_ID_CELL_VOLTAGE_BASE};
-static DATA_BLOCK_CELL_TEMPERATURE_s ltc_celltemperature = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE_BASE};
+static DATA_BLOCK_CELL_TEMPERATURE_s ltc_celltemperature = {.header.uniqueId = DATA_BLOCK_ID_CELL_TEMPERATURE};
+//dirty fix for not using redundancy!
 static DATA_BLOCK_BALANCING_FEEDBACK_s ltc_balancing_feedback = {
     .header.uniqueId = DATA_BLOCK_ID_BALANCING_FEEDBACK_BASE};
 static DATA_BLOCK_BALANCING_CONTROL_s ltc_balancing_control = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
