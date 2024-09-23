@@ -191,6 +191,7 @@ typedef enum {
 } LTC_MCU_MEAS_SUB_e;
 
 typedef enum {
+    INIT_START,    /*!<    */
     INIT_STRING,   /*!<    */
     INIT_ENTRY,    /*!<    */
     INIT_RE_ENTRY, /*!<    */

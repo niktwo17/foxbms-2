@@ -854,7 +854,7 @@ void LTC_Trigger(LTC_STATE_s *ltc_state) {
             case LTC_STATEMACH_UNINITIALIZED:
                 /* waiting for Initialization Request */
                 statereq = LTC_TransferStateRequest(ltc_state, &tmpbusID, &tmpadcMode, &tmpadcMeasCh);
-                if (statereq.request == LTC_STATE_INIT_REQUEST) {
+                if ((statereq.request == LTC_STATE_INIT_REQUEST) || (statereq.request == LTC_STATE_NO_REQUEST)) {
                     LTC_SaveLastStates(ltc_state);
                     LTC_InitializeDatabase(ltc_state);
                     LTC_ResetErrorTable(ltc_state);
@@ -3296,9 +3296,11 @@ static STD_RETURN_TYPE_e LTC_I2cCheckAck(LTC_STATE_s *ltc_state, uint16_t *pRxBu
     FAS_ASSERT(ltc_state != NULL_PTR);
     FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e muxError = STD_OK;
+    uint16_t val               = 0;
 
     for (uint16_t i = 0; i < BS_NR_OF_MODULES_PER_STRING; i++) {
-        if ((pRxBuff[4u + 1u + (LTC_NUMBER_OF_LTC_PER_MODULE * i * 8u)] & 0x0Fu) != 0x07u) { /* ACK = 0xX7 */
+        val = pRxBuff[4u + 1u + (LTC_NUMBER_OF_LTC_PER_MODULE * i * 8u)] & 0x0Fu;
+        if (val != 0x07u) { /* ACK = 0xX7 */
             if (LTC_DISCARD_MUX_CHECK == false) {
                 if (mux == 0u) {
                     ltc_state->ltcData.errorTable->mux0[stringNumber][i] = 1;

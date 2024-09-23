@@ -89,7 +89,7 @@
 spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_TOTAL_STRINGS];
 
 /** SPI data configuration struct for LTC communication */
-spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_TOTAL_STRINGS];
+spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_TOTAL_STRINGS + BS_NR_OF_MCU];
 
 /** SPI data configuration struct for NXP MC33775A communication, Tx part */
 spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_TOTAL_STRINGS];
@@ -157,7 +157,7 @@ SPI_INTERFACE_CONFIG_s spi_adiInterface[BS_NR_OF_TOTAL_STRINGS];
  * SPI interface configuration for LTC communication
  * This is a list of structs because of multistring
  */
-SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_TOTAL_STRINGS];
+SPI_INTERFACE_CONFIG_s spi_ltcInterface[BS_NR_OF_TOTAL_STRINGS + BS_NR_OF_MCU];
 
 /** SPI interface configuration for N775 communication Tx part */
 SPI_INTERFACE_CONFIG_s spi_nxp775InterfaceTx[BS_NR_OF_TOTAL_STRINGS];

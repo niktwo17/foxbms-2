@@ -88,6 +88,9 @@ static DATA_BLOCK_MIN_MAX_s data_blockMinMax = {.header.uniqueId = DATA_BLOCK_ID
 /** data block: current sensor */
 static DATA_BLOCK_CURRENT_SENSOR_s data_blockCurrentSensor = {.header.uniqueId = DATA_BLOCK_ID_CURRENT_SENSOR};
 
+/** data block: mcu sensor */
+static DATA_BLOCK_MCU_s data_blockMCU = {.header.uniqueId = DATA_BLOCK_ID_MCU};
+
 /** data block: balancing control */
 static DATA_BLOCK_BALANCING_CONTROL_s data_blockControlBalancing = {.header.uniqueId = DATA_BLOCK_ID_BALANCING_CONTROL};
 
@@ -190,6 +193,7 @@ DATA_BASE_s data_database[] = {
     {(void *)(&data_blockCellTemperature), sizeof(DATA_BLOCK_CELL_TEMPERATURE_s)},
     {(void *)(&data_blockMinMax), sizeof(DATA_BLOCK_MIN_MAX_s)},
     {(void *)(&data_blockCurrentSensor), sizeof(DATA_BLOCK_CURRENT_SENSOR_s)},
+    {(void *)(&data_blockMCU), sizeof(DATA_BLOCK_MCU_s)},
     {(void *)(&data_blockControlBalancing), sizeof(DATA_BLOCK_BALANCING_CONTROL_s)},
     {(void *)(&data_blockSlaveControl), sizeof(DATA_BLOCK_SLAVE_CONTROL_s)},
     {(void *)(&data_blockFeedbackBalancingBase), sizeof(DATA_BLOCK_BALANCING_FEEDBACK_s)},

@@ -76,7 +76,7 @@
 /*========== Static Constant and Variable Definitions =======================*/
 static uint32_t spi_txLastWord[DMA_NUMBER_SPI_INTERFACES] = {0};
 
-extern spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_TOTAL_STRINGS];
+extern spiDAT1_t spi_kLtcDataConfig[BS_NR_OF_TOTAL_STRINGS + BS_NR_OF_MCU];
 extern spiDAT1_t spi_kAdiDataConfig[BS_NR_OF_TOTAL_STRINGS];
 extern spiDAT1_t spi_kNxp775DataConfigTx[BS_NR_OF_TOTAL_STRINGS];
 extern spiDAT1_t spi_kNxp775DataConfigRx[BS_NR_OF_TOTAL_STRINGS];
@@ -145,7 +145,7 @@ static uint8_t SPI_GetChipSelectPin(SPI_CHIP_SELECT_TYPE_e chipSelectType, uint3
     * @brief   Initializes the configuration of SPI interfaces.
     */
 static void SPI_InitializeConfiguration(void) {
-    for (uint8_t s = 0u; s < BS_NR_OF_TOTAL_STRINGS; s++) {
+    for (uint8_t s = 0u; s < BS_NR_OF_TOTAL_STRINGS + BS_NR_OF_MCU; s++) {
         spi_ltcInterface[s].pConfig  = &spi_kLtcDataConfig[s];
         spi_ltcInterface[s].pNode    = spiREG1;
         spi_ltcInterface[s].pGioPort = &(spiREG1->PC3);
@@ -158,7 +158,8 @@ static void SPI_InitializeConfiguration(void) {
         spi_ltcInterface[s].pConfig->DFSEL   = SPI_FMT_0;
         spi_ltcInterface[s].pConfig->CSNR    = SPI_HARDWARE_CHIP_SELECT_DISABLE_ALL;
         spi_ltcInterface[s].pConfig->CSNR = SPI_GetChipSelectPin(spi_ltcInterface[s].csType, spi_ltcInterface[s].csPin);
-
+    }
+    for (uint8_t s = 0u; s < BS_NR_OF_TOTAL_STRINGS; s++) {
         spi_adiInterface[s].pConfig  = &spi_kAdiDataConfig[s];
         spi_adiInterface[s].pNode    = spiREG1;
         spi_adiInterface[s].pGioPort = &(spiREG1->PC3);
