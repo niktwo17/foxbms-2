@@ -115,7 +115,7 @@ pylint;                             2.11.1;             pypi_0;                 
 pyparsing;                          2.4.7;              pypi_0;                 pypi;       MIT License;                                                                2021-11-15
 pyrsistent;                         0.18.0;             pypi_0;                 pypi;       MIT License;                                                                2021-11-15
 pyserial;                           3.5;                pypi_0;                 pypi;       BSD License;                                                                2021-11-15
-pysimplegui;                        4.60.5;             pypi_0;                 pypi;       GNU Lesser General Public License v3 or later (LGPLv3+);                    2021-11-15
+pysimplegui;                        4.60.5.0;             pypi_0;                 pypi;       GNU Lesser General Public License v3 or later (LGPLv3+);                    2021-11-15
 python;                             3.9.7;              h6244533_1;             defaults;   PSF;                                                                        2021-07-26
 python-can;                         4.0.0.dev2;         pypi_0;                 pypi;       GNU Lesser General Public License v3 (LGPLv3);                              2021-11-15
 python-datauri;                     0.2.9;              pypi_0;                 pypi;       MIT License;                                                                2021-11-15
