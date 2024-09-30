@@ -45,6 +45,7 @@ static uint16_t ltc_cmdADCV_filtered_DCP0[4] =
     {0x03, 0xE0, 0xB0, 0x4A}; /*!< All cells, filtered mode, discharge not permitted (DCP=0)  */
 
 static uint16_t command[4] = {0};
+//static uint16_t ltc_dcmd0[8] = {0};
 
 static STD_RETURN_TYPE_e LTC_Init(
     SPI_INTERFACE_CONFIG_s *pSpiInterface,
@@ -115,12 +116,13 @@ static LTC_MCU_ERRORTABLE_s ltc_errorTable = {0}; /*!< init in LTC_ResetErrorTab
 #pragma SET_DATA_SECTION(".sharedRAM")
 uint16_t ltc_mcu_RxPecBuffer[MCU_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
 uint16_t ltc_mcu_TxPecBuffer[MCU_N_BYTES_FOR_DATA_TRANSMISSION] = {0};
+uint16_t ltc_mcu_Rx_RDCV[20]                                    = {0};
 #pragma SET_DATA_SECTION()
 /* AXIVION Enable Style MisraC2012-1.2: only Pec buffer needed to be in the shared RAM section */
 /**@}*/
 
 /* Commands */
-static uint16_t ltc_cmdWRCFG[4] = {0x00, 0x01, 0x3D, 0x6E};
+//static uint16_t ltc_cmdWRCFG[4] = {0x00, 0x01, 0x3D, 0x6E};
 
 LTC_MCU_STATE_s ltc_mcu_stateBase = {
     .timer                   = 0,
@@ -152,7 +154,7 @@ LTC_MCU_STATE_s ltc_mcu_stateBase = {
     .tempMeasDiagErrorEntry  = DIAG_ID_AFE_CELL_TEMPERATURE_MEAS_ERROR,
     .ltcData.pSpiInterface   = spi_ltcInterface,
     .ltcData.txBuffer        = ltc_mcu_TxPecBuffer,
-    .ltcData.rxBuffer        = ltc_mcu_RxPecBuffer,
+    .ltcData.rxBuffer        = ltc_mcu_Rx_RDCV,
     .ltcData.frameLength     = 12,
     .ltcData.errorTable      = &ltc_errorTable,
     .ltcData.currentSensor   = &ltc_currentSensor,
@@ -253,7 +255,7 @@ void LTC_MCU_Trigger(LTC_MCU_STATE_s *ltc_state) {
                         ltc_state->spiSeqPtr,
                         ltc_state->ltcData.txBuffer,
                         ltc_state->ltcData.rxBuffer,
-                        ltc_state->ltcData.frameLength); /* Initialize main LTC loop */
+                        20); /* Initialize main LTC loop */
                     ltc_state->lastsubstate = ltc_state->substate;
                     DIAG_CheckEvent(retVal, ltc_state->spiDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
                     LTC_StateTransition(
@@ -332,6 +334,7 @@ void LTC_MCU_Trigger(LTC_MCU_STATE_s *ltc_state) {
                     ltc_state->check_spi_flag = STD_NOT_OK;
                     break;
                 }
+                ltc_state->ltcData.frameLength = 20;  //total package of data
                 MCU_SetTransmitOngoing(ltc_state);
                 retVal = LTC_ReadRegister(
                     command,
@@ -892,37 +895,25 @@ static STD_RETURN_TYPE_e LTC_Init(
     FAS_ASSERT(pRxBuff != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_NOT_OK;
 
-    uint8_t PEC_Check[LTC_DATA_SIZE_IN_BYTES];
+    uint8_t PEC_1[1];
+    uint8_t PEC_2[2];
     uint16_t PEC_result = 0;
 
     /* now construct the message to be sent: it contains the wanted data, PLUS the needed PECs */
-    pTxBuff[0] = ltc_cmdWRCFG[0];
-    pTxBuff[1] = ltc_cmdWRCFG[1];
-    pTxBuff[2] = ltc_cmdWRCFG[2];
-    pTxBuff[3] = ltc_cmdWRCFG[3];
-
-    /* set REFON bit to 1 */
-    /* data for the configuration */
-    for (uint16_t i = 0u; i < LTC_N_LTC; i++) {
-        /* FC = disable all pull-downs, REFON = 1, DTEN = 0, ADCOPT = 0 */
-        pTxBuff[4u + (i * 8u)] = 0xFC;
-        pTxBuff[5u + (i * 8u)] = 0x00;
-        pTxBuff[6u + (i * 8u)] = 0x00;
-        pTxBuff[7u + (i * 8u)] = 0x00;
-        pTxBuff[8u + (i * 8u)] = 0x00;
-        pTxBuff[9u + (i * 8u)] = 0x00;
-
-        PEC_Check[0] = pTxBuff[4u + (i * 8u)];
-        PEC_Check[1] = pTxBuff[5u + (i * 8u)];
-        PEC_Check[2] = pTxBuff[6u + (i * 8u)];
-        PEC_Check[3] = pTxBuff[7u + (i * 8u)];
-        PEC_Check[4] = pTxBuff[8u + (i * 8u)];
-        PEC_Check[5] = pTxBuff[9u + (i * 8u)];
-
-        PEC_result              = LTC_CalculatePec15(LTC_DATA_SIZE_IN_BYTES, PEC_Check);
-        pTxBuff[10u + (i * 8u)] = (PEC_result >> 8u) & 0xFFu;
-        pTxBuff[11u + (i * 8u)] = PEC_result & 0xFFu;
-    } /* end for */
+    pTxBuff[0]  = 0xFE;
+    pTxBuff[1]  = 0xF5;
+    pTxBuff[4]  = 0x40;
+    pTxBuff[5]  = 0x08;
+    PEC_2[0]    = pTxBuff[0];
+    PEC_2[1]    = pTxBuff[1];
+    PEC_1[0]    = pTxBuff[5];
+    PEC_result  = LTC_CalculatePec15(2, PEC_2);
+    pTxBuff[2]  = (PEC_result >> 8u) & 0xFFu;
+    pTxBuff[3]  = PEC_result & 0xFFu;
+    PEC_result  = LTC_CalculatePec15(1, PEC_1);
+    pTxBuff[6]  = (PEC_result >> 8u) & 0xFFu;
+    pTxBuff[7]  = PEC_result & 0xFFu;
+    frameLength = 8;
 
     retVal = LTC_TRANSMIT_RECEIVE_DATA(pSpiInterface, pTxBuff, pRxBuff, frameLength);
 
@@ -942,29 +933,32 @@ static STD_RETURN_TYPE_e LTC_CheckPec(
 
     /* check all PECs and put data without command and PEC in DataBufferSPI_RX (easier to use) */
 
-    PEC_Check[0] = DataBufferSPI_RX_with_PEC[4u];
-    PEC_Check[1] = DataBufferSPI_RX_with_PEC[5u];
-    PEC_Check[2] = DataBufferSPI_RX_with_PEC[6u];
-    PEC_Check[3] = DataBufferSPI_RX_with_PEC[7u];
-    PEC_Check[4] = DataBufferSPI_RX_with_PEC[8u];
-    PEC_Check[5] = DataBufferSPI_RX_with_PEC[9u];
+    for (uint8_t i = 0u; i < (uint8_t)((ltc_state->ltcData.frameLength - 4) / LTC_DATA_SIZE_IN_BYTES); i++) {
+        PEC_Check[0] = DataBufferSPI_RX_with_PEC[4u + 8u * i];
+        PEC_Check[1] = DataBufferSPI_RX_with_PEC[5u + 8u * i];
+        PEC_Check[2] = DataBufferSPI_RX_with_PEC[6u + 8u * i];
+        PEC_Check[3] = DataBufferSPI_RX_with_PEC[7u + 8u * i];
+        PEC_Check[4] = DataBufferSPI_RX_with_PEC[8u + 8u * i];
+        PEC_Check[5] = DataBufferSPI_RX_with_PEC[9u + 8u * i];
 
-    PEC_result = LTC_CalculatePec15(LTC_DATA_SIZE_IN_BYTES, PEC_Check);
-    PEC_TX[0]  = (uint8_t)((PEC_result >> 8u) & 0xFFu);
-    PEC_TX[1]  = (uint8_t)(PEC_result & 0xFFu);
+        PEC_result = LTC_CalculatePec15(LTC_DATA_SIZE_IN_BYTES, PEC_Check);
+        PEC_TX[0]  = (uint8_t)((PEC_result >> 8u) & 0xFFu);
+        PEC_TX[1]  = (uint8_t)(PEC_result & 0xFFu);
 
-    /* if calculated PEC not equal to received PEC */
-    if ((PEC_TX[0] != DataBufferSPI_RX_with_PEC[10u]) || (PEC_TX[1] != DataBufferSPI_RX_with_PEC[11u])) {
-        /* update error table of the corresponding LTC only if PEC check is activated */
-        if (LTC_DISCARD_PEC == false) {
-            ltc_state->ltcData.errorTable->PEC_valid[stringNumber] = false;
-            retVal                                                 = STD_NOT_OK;
+        /* if calculated PEC not equal to received PEC */
+        if ((PEC_TX[0] != DataBufferSPI_RX_with_PEC[10u + 8u * i]) ||
+            (PEC_TX[1] != DataBufferSPI_RX_with_PEC[11u + 8u * i])) {
+            /* update error table of the corresponding LTC only if PEC check is activated */
+            if (LTC_DISCARD_PEC == false) {
+                ltc_state->ltcData.errorTable->PEC_valid[stringNumber] &= false;
+                retVal |= STD_NOT_OK;
+            } else {
+                ltc_state->ltcData.errorTable->PEC_valid[stringNumber] &= true;
+            }
         } else {
-            ltc_state->ltcData.errorTable->PEC_valid[stringNumber] = true;
+            /* update error table of the corresponding LTC */
+            ltc_state->ltcData.errorTable->PEC_valid[stringNumber] &= true;
         }
-    } else {
-        /* update error table of the corresponding LTC */
-        ltc_state->ltcData.errorTable->PEC_valid[stringNumber] = true;
     }
     return retVal;
 }

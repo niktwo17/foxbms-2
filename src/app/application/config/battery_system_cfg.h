@@ -96,7 +96,7 @@ typedef enum {
  *          repetition macro is adapted.
  * @ptype   uint
  */
-#define BS_NR_OF_STRINGS        (1u)
+#define BS_NR_OF_STRINGS        (2u)
 #define BS_NR_OF_SERIES_STRINGS (BS_NR_OF_STRINGS)
 #define BS_NR_OF_TOTAL_STRINGS  (BS_NR_OF_STRINGS * BS_NR_OF_SERIES_STRINGS)
 
