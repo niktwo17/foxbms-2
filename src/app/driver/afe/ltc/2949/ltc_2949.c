@@ -33,8 +33,8 @@
 LTC_MCU_STATEMACH_e ltc_mcu_state = MCU_SM_INIT;
 
 static uint16_t ltc_cmdRDCVA[4] = {0x00, 0x04, 0x07, 0xC2};
-static uint16_t ltc_cmdRDCVB[4] = {0x00, 0x06, 0x9A, 0x94};
-static uint16_t ltc_cmdRDCVC[4] = {0x00, 0x08, 0x5E, 0x52};
+//static uint16_t ltc_cmdRDCVB[4] = {0x00, 0x06, 0x9A, 0x94};
+//static uint16_t ltc_cmdRDCVC[4] = {0x00, 0x08, 0x5E, 0x52};
 
 /* Cells */
 static uint16_t ltc_cmdADCV_fast_DCP0[4] =
@@ -90,12 +90,12 @@ static void LTC_CondBasedStateTransition(
     uint16_t timer_ms_nok);
 
 static void LTC_SaveRxToVoltageBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t stringNumber);
-static void LTC_SaveRxToCurrentBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t stringNumber);
-static void LTC_SaveRxToTempBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t stringNumber);
+//static void LTC_SaveRxToCurrentBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t stringNumber);
+//static void LTC_SaveRxToTempBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t stringNumber);
 static uint16_t LTC_GetMeasurementTimeCycle(LTC_ADCMODE_e adcMode);
 static STD_RETURN_TYPE_e LTC_StartVoltageMeasurement(SPI_INTERFACE_CONFIG_s *pSpiInterface, LTC_ADCMODE_e adcMode);
-static STD_RETURN_TYPE_e LTC_StartCurrentMeasurement(SPI_INTERFACE_CONFIG_s *pSpiInterface, LTC_ADCMODE_e adcMode);
-static STD_RETURN_TYPE_e LTC_StartTempMeasurement(SPI_INTERFACE_CONFIG_s *pSpiInterface, LTC_ADCMODE_e adcMode);
+//static STD_RETURN_TYPE_e LTC_StartCurrentMeasurement(SPI_INTERFACE_CONFIG_s *pSpiInterface, LTC_ADCMODE_e adcMode);
+//static STD_RETURN_TYPE_e LTC_StartTempMeasurement(SPI_INTERFACE_CONFIG_s *pSpiInterface, LTC_ADCMODE_e adcMode);
 
 void LTC_MCU_Trigger(LTC_MCU_STATE_s *ltc_mcu_state);
 uint8_t LTC_MCU_CheckReEntrance(LTC_MCU_STATE_s *ltc_state);
@@ -294,10 +294,6 @@ void LTC_MCU_Trigger(LTC_MCU_STATE_s *ltc_state) {
                 ltc_state->check_spi_flag = STD_NOT_OK;
                 if (ltc_state->substate == MEAS_VOLT) {
                     retVal = LTC_StartVoltageMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode);
-                } else if (ltc_state->substate == MEAS_TEMP) {
-                    retVal = LTC_StartTempMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode);
-                } else if (ltc_state->substate == MEAS_CURRENT) {
-                    retVal = LTC_StartCurrentMeasurement(ltc_state->spiSeqPtr, ltc_state->adcMode);
                 } else {
                     retVal = STD_NOT_OK;
                     break;
@@ -321,14 +317,7 @@ void LTC_MCU_Trigger(LTC_MCU_STATE_s *ltc_state) {
                     for (uint8_t i = 0; i < 4; i++) {
                         command[i] = ltc_cmdRDCVA[i];
                     }
-                } else if (ltc_state->substate == MEAS_TEMP) {
-                    for (uint8_t i = 0; i < 4; i++) {
-                        command[i] = ltc_cmdRDCVB[i];
-                    }
-                } else if (ltc_state->substate == MEAS_CURRENT) {
-                    for (uint8_t i = 0; i < 4; i++) {
-                        command[i] = ltc_cmdRDCVC[i];
-                    }
+                    retVal = STD_OK;
                 } else {
                     retVal                    = STD_NOT_OK;
                     ltc_state->check_spi_flag = STD_NOT_OK;
@@ -361,10 +350,6 @@ void LTC_MCU_Trigger(LTC_MCU_STATE_s *ltc_state) {
                 DIAG_CheckEvent(retVal, ltc_state->pecDiagErrorEntry, DIAG_STRING, ltc_state->currentString);
                 if (ltc_state->substate == MEAS_VOLT) {
                     LTC_SaveRxToVoltageBuffer(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                } else if (ltc_state->substate == MEAS_TEMP) {
-                    LTC_SaveRxToTempBuffer(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
-                } else if (ltc_state->substate == MEAS_CURRENT) {
-                    LTC_SaveRxToCurrentBuffer(ltc_state, ltc_state->ltcData.rxBuffer, ltc_state->currentString);
                 } else {
                     retVal = STD_NOT_OK;
                     break;
@@ -375,13 +360,6 @@ void LTC_MCU_Trigger(LTC_MCU_STATE_s *ltc_state) {
 
             case MCU_SM_MEAS_FINISH:
                 if (ltc_state->substate == MEAS_VOLT) {
-                    //ltc_state->adcMode = ;
-                    LTC_StateTransition(ltc_state, MCU_SM_MEAS_REQ, MEAS_CURRENT, MCU_SM_SHORTTIME);
-                } else if (ltc_state->substate == MEAS_TEMP) {
-                    //ltc_state->adcMode = ;
-                    LTC_StateTransition(ltc_state, MCU_SM_MEAS_REQ, MEAS_CURRENT, MCU_SM_SHORTTIME);
-                } else if (ltc_state->substate == MEAS_CURRENT) {
-                    //ltc_state->adcMode = ;
                     ++ltc_state->spiSeqPtr;
                     ++ltc_state->currentString;
                     if (ltc_state->spiSeqPtr >= ltc_state->spiSeqEndPtr) {
@@ -629,25 +607,44 @@ static uint16_t LTC_GetMeasurementTimeCycle(LTC_ADCMODE_e adcMode) {
 static void LTC_SaveRxToVoltageBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t stringNumber) {
     FAS_ASSERT(ltc_state != NULL_PTR);
     FAS_ASSERT(pRxBuff != NULL_PTR);
-    uint16_t val_ui       = 0;
-    uint16_t voltage      = 0;
-    uint16_t buffer_LSB   = 0;
-    uint16_t buffer_MSB   = 0;
+    uint16_t val_ui   = 0;
+    uint16_t voltage  = 0;
+    uint16_t current1 = 0;
+    //uint16_t current2     = 0;
+    //uint16_t batt         = 0;
+    uint16_t buffer_LSB = 0;
+    uint16_t buffer_MSB = 0;
+    //uint16_t aux          = 0;
     bool continueFunction = true;
 
     if (continueFunction == true) {
         /* Retrieve data without command and CRC*/
         /* parse all three voltages (3 * 2bytes) contained in one register */
         // DEPENDS on amount of data in register...
-        for (uint8_t c = 0u; c < 3u; c++) {
-            /* index considering maximum number of cells */
-            buffer_MSB = pRxBuff[4u + (2u * c) + 1u];
-            buffer_LSB = pRxBuff[4u + (2u * c)];
-            val_ui     = buffer_LSB | (buffer_MSB << 8u);
-            /* val_ui = *((uint16_t *)(&pRxBuff[4+2*j+i*8])); */
-            voltage += ((val_ui)) * 100e-6f * 1000.0f; /* Unit V -> in mV */
 
-            /* Check PEC for every LTC
+        /* index considering maximum number of cells */
+        //buffer_MSB = pRxBuff[4u + (2u * c) + 1u];
+        //buffer_LSB = pRxBuff[4u + (2u * c)];
+        buffer_MSB = pRxBuff[4u + 1u];  //I1
+        buffer_LSB = pRxBuff[4u];       //I1
+        val_ui     = buffer_LSB | (buffer_MSB << 8u);
+        current1   = ((val_ui)) * 7.60371e-6f * 1000.0f; /* Unit V -> in mV */
+
+        buffer_MSB = pRxBuff[6u + 1u];  //I2
+        buffer_LSB = pRxBuff[6u];       //I2
+        val_ui     = buffer_LSB | (buffer_MSB << 8u);
+        //current2   = ((val_ui)) * 7.60371e-6f * 1000.0f; /* Unit V -> in mV */
+
+        buffer_MSB = pRxBuff[8u + 1u];  //Batt
+        buffer_LSB = pRxBuff[8u];       //Batt
+        val_ui     = buffer_LSB | (buffer_MSB << 8u);
+        //batt       = ((val_ui)) * 375.183e-6f * 1000.0f; /* Unit V -> in mV */
+        //offset for 2 PEC bytes
+        buffer_MSB = pRxBuff[12u + 1u];  //Aux
+        buffer_LSB = pRxBuff[12u];       //Aux
+        val_ui     = buffer_LSB | (buffer_MSB << 8u);
+        //aux        = ((val_ui)) * 375.183e-6f * 1000.0f; /* Unit V -> in mV */
+        /* Check PEC for every LTC
             if (ltc_state->ltcData.errorTable->PEC_valid[stringNumber] == true) {
                 ltc_state->ltcData.currentSensor->invalidHighVoltageMeasurement[stringNumber] = 0;
                 ltc_state->ltcData.currentSensor->highVoltage_mV[stringNumber]                = voltage;
@@ -656,8 +653,8 @@ static void LTC_SaveRxToVoltageBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxB
                 ltc_state->ltcData.currentSensor->invalidHighVoltageMeasurement[stringNumber] = 1;
             }
             */
-            ltc_state->ltcData.currentSensor->highVoltage_mV[stringNumber] = voltage;
-        }
+        ltc_state->ltcData.currentSensor->highVoltage_mV[stringNumber] = voltage;
+        ltc_state->ltcData.currentSensor->current_mA[stringNumber]     = current1;
     }
 }
 
@@ -673,6 +670,7 @@ static void LTC_SaveRxToVoltageBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxB
  * @param  stringNumber    string addressed
  *
  */
+/*
 static void LTC_SaveRxToCurrentBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t stringNumber) {
     FAS_ASSERT(ltc_state != NULL_PTR);
     FAS_ASSERT(pRxBuff != NULL_PTR);
@@ -683,22 +681,24 @@ static void LTC_SaveRxToCurrentBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxB
     bool continueFunction = true;
 
     if (continueFunction == true) {
-        /* Retrieve data without command and CRC*/
-        /* parse all three voltages (3 * 2bytes) contained in one register */
+        // Retrieve data without command and CRC
+        // parse all three voltages (3 * 2bytes) contained in one register
         // DEPENDS on amount of data in register...
         for (uint8_t c = 0u; c < 3u; c++) {
-            /* index considering maximum number of cells */
+            // index considering maximum number of cells
             buffer_MSB = pRxBuff[4u + (2u * c) + 1u];
             buffer_LSB = pRxBuff[4u + (2u * c)];
             val_ui     = buffer_LSB | (buffer_MSB << 8u);
-            /* val_ui = *((uint16_t *)(&pRxBuff[4+2*j+i*8])); */
-            current += ((val_ui)) * 100e-6f * 1000.0f; /* Unit V -> in mV */
+            // val_ui = *((uint16_t *)(&pRxBuff[4+2*j+i*8]));
+            current += ((val_ui)) * 100e-6f * 1000.0f;  // Unit V -> in mV
 
             ltc_state->ltcData.currentSensor->current_mA[stringNumber] = current;
         }
     }
 }
+*/
 
+/*
 static void LTC_SaveRxToTempBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxBuff, uint8_t stringNumber) {
     FAS_ASSERT(ltc_state != NULL_PTR);
     FAS_ASSERT(pRxBuff != NULL_PTR);
@@ -709,21 +709,22 @@ static void LTC_SaveRxToTempBuffer(LTC_MCU_STATE_s *ltc_state, uint16_t *pRxBuff
     bool continueFunction = true;
 
     if (continueFunction == true) {
-        /* Retrieve data without command and CRC*/
-        /* parse all three voltages (3 * 2bytes) contained in one register */
+        // Retrieve data without command and CRC
+        // parse all three voltages (3 * 2bytes) contained in one register
         // DEPENDS on amount of data in register...
         for (uint8_t c = 0u; c < 3u; c++) {
-            /* index considering maximum number of cells */
+            // index considering maximum number of cells
             buffer_MSB = pRxBuff[4u + (2u * c) + 1u];
             buffer_LSB = pRxBuff[4u + (2u * c)];
             val_ui     = buffer_LSB | (buffer_MSB << 8u);
-            /* val_ui = *((uint16_t *)(&pRxBuff[4+2*j+i*8])); */
-            temp += ((val_ui)) * 100e-6f * 1000.0f; /* Unit V -> in mV */
+            // val_ui = *((uint16_t *)(&pRxBuff[4+2*j+i*8]));
+            temp += ((val_ui)) * 100e-6f * 1000.0f; // Unit V -> in mV
 
             ltc_state->ltcData.currentSensor->sensorTemperature_ddegC[stringNumber] = temp;
         }
     }
 }
+*/
 /**
  * @brief   tells the LTC to start measuring voltage
  *
@@ -760,6 +761,7 @@ static STD_RETURN_TYPE_e LTC_StartVoltageMeasurement(SPI_INTERFACE_CONFIG_s *pSp
  * @return  retVal      #STD_OK if dummy byte was sent correctly by SPI, #STD_NOT_OK otherwise
  *
  */
+/*
 static STD_RETURN_TYPE_e LTC_StartCurrentMeasurement(SPI_INTERFACE_CONFIG_s *pSpiInterface, LTC_ADCMODE_e adcMode) {
     FAS_ASSERT(pSpiInterface != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_OK;
@@ -775,6 +777,7 @@ static STD_RETURN_TYPE_e LTC_StartCurrentMeasurement(SPI_INTERFACE_CONFIG_s *pSp
     }
     return retVal;
 }
+*/
 
 /**
  * @brief   tells the LTC to start measuring temperature
@@ -786,6 +789,7 @@ static STD_RETURN_TYPE_e LTC_StartCurrentMeasurement(SPI_INTERFACE_CONFIG_s *pSp
  * @return  retVal      #STD_OK if dummy byte was sent correctly by SPI, #STD_NOT_OK otherwise
  *
  */
+/*
 static STD_RETURN_TYPE_e LTC_StartTempMeasurement(SPI_INTERFACE_CONFIG_s *pSpiInterface, LTC_ADCMODE_e adcMode) {
     FAS_ASSERT(pSpiInterface != NULL_PTR);
     STD_RETURN_TYPE_e retVal = STD_OK;
@@ -801,6 +805,7 @@ static STD_RETURN_TYPE_e LTC_StartTempMeasurement(SPI_INTERFACE_CONFIG_s *pSpiIn
     }
     return retVal;
 }
+*/
 
 /**
  * @brief Saves the last state and the last substate
@@ -903,7 +908,7 @@ static STD_RETURN_TYPE_e LTC_Init(
     pTxBuff[0]  = 0xFE;
     pTxBuff[1]  = 0xF5;
     pTxBuff[4]  = 0x40;
-    pTxBuff[5]  = 0x08;
+    pTxBuff[5]  = 0xD;
     PEC_2[0]    = pTxBuff[0];
     PEC_2[1]    = pTxBuff[1];
     PEC_1[0]    = pTxBuff[5];
