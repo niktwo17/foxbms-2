@@ -156,7 +156,7 @@
  * Timeout in milliseconds added to the transmission time for interrupt-based
  * SPI transmission.
  */
-#define LTC_TRANSMISSION_TIMEOUT (10)
+#define LTC_TRANSMISSION_TIMEOUT (4)
 
 /**
  * SPI1 is used for communication with LTC
