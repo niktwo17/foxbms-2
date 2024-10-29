@@ -279,7 +279,8 @@ typedef struct {
     uint8_t eepromValueWrite[BS_NR_OF_MODULES_PER_STRING]; /*!< data to be written to the slave EEPROM */
     uint8_t eepromValueRead[BS_NR_OF_MODULES_PER_STRING];  /*!< data read from to the slave EEPROM */
     uint8_t
-        externalTemperatureSensor[BS_NR_OF_MODULES_PER_STRING]; /*!< temperature from the external sensor on slave */
+        externalTemperatureSensor[BS_NR_OF_MODULES_PER_STRING];   /*!< temperature from the external sensor on slave */
+    float internalTemperatureSensor[BS_NR_OF_MODULES_PER_STRING]; /*!< temperature from the internal sensor on slave */
 } DATA_BLOCK_SLAVE_CONTROL_s;
 
 /** data block struct of cell balancing feedback */
